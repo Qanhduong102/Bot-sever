@@ -5,6 +5,7 @@ import pyttsx3
 import speech_recognition as sr
 import sys
 import io
+import time
 
 # Thiết lập mã hóa UTF-8 cho console
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -127,9 +128,20 @@ class ChatClient:
 
     def display_message(self, message):
         self.chat_area.config(state='normal')
-        self.chat_area.insert(tk.END, f"{message}\n")
+        self.chat_area.insert(tk.END, "")
         self.chat_area.config(state='disabled')
-        self.chat_area.see(tk.END)
+
+        def typing_effect():
+            self.chat_area.config(state='normal')
+            for char in message:
+                self.chat_area.insert(tk.END, char)
+                self.chat_area.see(tk.END)
+                self.chat_area.update()  # Ensure the screen updates immediately
+                time.sleep(0.05)  # Adjust speed here
+            self.chat_area.config(state='disabled')
+
+        # Start typing effect in a separate thread to prevent freezing the UI
+        self.root.after(100, typing_effect)
 
     def close_connection(self):
         sio.disconnect()
