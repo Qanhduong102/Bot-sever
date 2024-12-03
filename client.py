@@ -137,7 +137,8 @@ class ChatClient:
             self.conversations.append(self.current_conversation)
 
         # Cập nhật danh sách cuộc hội thoại trong khung bên trái
-        conversation_number = len(self.conversations) + 1
+        conversation_number = len(self.conversations) + 1  # Sửa lại cách tính số cuộc hội thoại
+
         self.conversation_listbox.insert(tk.END, f"Conversation {conversation_number}")
 
         # Tạo cuộc hội thoại mới
