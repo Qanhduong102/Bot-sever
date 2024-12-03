@@ -34,7 +34,7 @@ class ChatClient:
         self.header.grid(row=0, column=0, columnspan=3, pady=(10, 0))
 
         self.chat_area = scrolledtext.ScrolledText(
-            root, wrap=tk.WORD, state='disabled', height=20, width=50,
+            root, wrap=tk.WORD, state='disabled', height=20, width=70,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
