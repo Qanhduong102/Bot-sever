@@ -28,11 +28,11 @@ class ChatClient:
 
         # Tiêu đề
         self.header = tk.Label(
-            root, text="🎨 Chatbot Client 🎤",
-            font=("Montserrat", 16, "bold"),
-            fg="#ffffff", bg="#1e1e2f"
-        )
-        self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0), sticky="w")
+        root, text="🎨 Voice-Chat Bot 🎤",
+        font=("Montserrat", 16, "bold"),
+        fg="#ffffff", bg="#1e1e2f"
+)
+        self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0), sticky="ew")
 
         # Khung bên trái cho nút quản lý hội thoại
         self.left_panel = tk.Frame(
