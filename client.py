@@ -125,6 +125,10 @@ class ChatClient:
         self.engine.setProperty('rate', 150)
         self.tts_enabled = False
 
+        # Danh sách lưu trữ lịch sử hội thoại
+        self.conversations = []
+        self.current_conversation = []
+
         self.connect_to_server()
 
     def center_window(self, width, height):
@@ -166,14 +170,12 @@ class ChatClient:
 
     def delete_conversation(self):
         """Xử lý xóa hội thoại hiện tại."""
-        selected_index = self.conversation_listbox.curselection()
-        if selected_index:
-            # Xóa hội thoại được chọn khỏi danh sách các cuộc hội thoại
-            conversation_name = self.conversation_listbox.get(selected_index)
-            self.conversations = [conv for conv in self.conversations if conv != conversation_name]
+        if self.conversations:
+            # Xóa hội thoại hiện tại khỏi danh sách các cuộc hội thoại
+            self.conversations.pop()
 
             # Cập nhật lại danh sách các cuộc hội thoại trên giao diện
-            self.conversation_listbox.delete(selected_index)  # Xóa cuộc hội thoại đã xóa
+            self.conversation_listbox.delete(tk.END)  # Xóa cuộc hội thoại đã xóa
 
             # Cập nhật nội dung hội thoại trên giao diện
             self.chat_area.config(state='normal')
@@ -181,26 +183,53 @@ class ChatClient:
             self.chat_area.insert(tk.END, "Conversation deleted.\n")
             self.chat_area.config(state='disabled')
 
-        # Nếu không còn cuộc hội thoại nào, khôi phục lại giao diện như lúc ban đầu
+            # Nếu không còn cuộc hội thoại nào, khôi phục lại giao diện như lúc ban đầu
         if not self.conversations:
             self.chat_area.config(state='normal')
             self.chat_area.delete("1.0", tk.END)
             self.chat_area.insert(tk.END, "No conversations available.\n")
             self.chat_area.config(state='disabled')
 
+    def on_conversation_select(self, event):
+        """Xử lý khi người dùng chọn cuộc hội thoại trong danh sách."""
+        selection = self.conversation_listbox.curselection()
+        if selection:
+            conversation_index = selection[0]  # Lấy index của cuộc hội thoại được chọn
+            self.display_conversation(conversation_index)  # Hiển thị cuộc hội thoại đó
+
     def connect_to_server(self):
-        """Kết nối đến server."""
-        self.is_connected = True
-        print("Connected to server.")
-        self.chat_area.insert(tk.END, "Connected to the server.\n")
-        self.chat_area.yview(tk.END)
+        """Kết nối tới server (giả sử là server chat)."""
+        try:
+            # Logic kết nối tới server
+            self.is_connected = True
+        except Exception as e:
+            print(f"Error connecting to server: {e}")
 
     def disconnect_from_server(self):
-        """Ngắt kết nối từ server."""
+        """Ngắt kết nối khỏi server (nếu có)."""
         self.is_connected = False
-        print("Disconnected from server.")
-        self.chat_area.insert(tk.END, "Disconnected from the server.\n")
-        self.chat_area.yview(tk.END)
+
+    def connect_to_server(self):
+        @sio.event
+        def connect():
+            print("Kết nối thành công tới server!")
+            self.display_message("Bot: Connected to server.")
+
+        @sio.event
+        def disconnect():
+            print("Ngắt kết nối từ server!")
+            self.display_message("Bot: Disconnected from server.")
+
+        @sio.on('message')
+        def on_message(data):
+            print(f"Phản hồi từ server: {data}")
+            self.typing_effect(f"Bot: {data}")
+
+        try:
+            sio.connect(SERVER_URL)
+        except Exception as e:
+            print(f": {e}")
+            self.display_message(f"{e}")
 
     def send_message(self):
         self.tts_enabled = False  # Tắt TTS khi gửi tin nhắn qua entry
