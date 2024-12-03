@@ -150,6 +150,12 @@ class ChatClient:
         self.chat_area.insert(tk.END, "\n")  # Thêm dòng mới sau khi gõ xong
         self.chat_area.config(state='disabled')
 
+        # Đọc tin nhắn của bot bằng TTS
+        if message.startswith("Bot:"):
+            bot_response = message[5:]  # Bỏ phần "Bot: " để lấy nội dung chính
+            self.engine.say(bot_response)
+            self.engine.runAndWait()
+
     def close_connection(self):
         sio.disconnect()
 
