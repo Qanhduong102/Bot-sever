@@ -66,7 +66,7 @@ class ChatClient:
         )
         self.delete_conv_button.pack(pady=(5, 10), padx=10, fill="x")
 
-        # Khung hiển thị hội thoại
+        # Khung hiển thị hội thoại (Lịch sử hội thoại)
         self.chat_area = scrolledtext.ScrolledText(
             root, wrap=tk.WORD, state='disabled', height=20, width=60,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
@@ -109,6 +109,10 @@ class ChatClient:
         self.engine.setProperty('rate', 150)
         self.tts_enabled = False
 
+        # Danh sách lưu trữ lịch sử hội thoại
+        self.conversations = []
+        self.current_conversation = []
+
         self.connect_to_server()
 
     def center_window(self, width, height):
@@ -119,7 +123,13 @@ class ChatClient:
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def new_conversation(self):
-        """Xử lý bắt đầu hội thoại mới."""
+        """Xử lý bắt đầu hội thoại mới và lưu lại hội thoại hiện tại."""
+        if self.current_conversation:
+            # Lưu lại cuộc hội thoại hiện tại trước khi bắt đầu cuộc hội thoại mới
+            self.conversations.append(self.current_conversation)
+
+        # Tạo cuộc hội thoại mới
+        self.current_conversation = []
         self.chat_area.config(state='normal')
         self.chat_area.delete("1.0", tk.END)
         self.chat_area.insert(tk.END, "New conversation started.\n")
