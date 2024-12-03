@@ -185,7 +185,7 @@ class ChatClient:
                 # Code thực sự để kết nối đến server của bạn ở đây...
                 self.is_connected = True
             except Exception as e:
-                print(f"Error connecting to server: {e}")
+                print(f"{e}")
         else:
             print("Already connected to the server.")  # Nếu đã kết nối, không làm gì thêm
 
@@ -219,7 +219,7 @@ class ChatClient:
             sio.connect(SERVER_URL)
         except Exception as e:
             print(f": {e}")
-            self.display_message(f": {e}")
+            self.display_message(f"{e}")
 
     def send_message(self):
         self.tts_enabled = False  # Tắt TTS khi gửi tin nhắn qua entry
