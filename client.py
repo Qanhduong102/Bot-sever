@@ -87,9 +87,7 @@ class ChatClient:
         @sio.on('message')
         def on_message(data):
             print(f"Phản hồi từ server: {data}")
-            self.display_message(f"Bot: {data}")
-            self.engine.say(data)
-            self.engine.runAndWait()
+            self.typing_effect(f"Bot: {data}")  # Gọi hàm typing_effect để hiển thị tin nhắn
 
         try:
             sio.connect(SERVER_URL)
@@ -127,21 +125,20 @@ class ChatClient:
                 self.display_message(f"🎤 Bot: Error ({e})")
 
     def display_message(self, message):
+        self.chat_area.config(state='normal')  # Mở chế độ chỉnh sửa cho widget
+        self.chat_area.insert(tk.END, f"{message}\n")  # Thêm tin nhắn và xuống dòng sau mỗi tin nhắn
+        self.chat_area.config(state='disabled')  # Đóng chế độ chỉnh sửa để không bị thay đổi
+        self.chat_area.see(tk.END)  # Cuộn xuống cuối cùng để hiển thị tin nhắn mới
+
+    def typing_effect(self, message):
         self.chat_area.config(state='normal')
-        self.chat_area.insert(tk.END, "")  # Ensure the previous text is cleared
+        for char in message:
+            self.chat_area.insert(tk.END, char)
+            self.chat_area.see(tk.END)  # Đảm bảo nó cuộn xuống cuối
+            self.chat_area.update()  # Cập nhật giao diện ngay lập tức
+            time.sleep(0.05)  # Điều chỉnh tốc độ gõ tại đây
+        self.chat_area.insert(tk.END, "\n")  # Thêm dòng mới sau khi gõ xong
         self.chat_area.config(state='disabled')
-
-        def typing_effect():
-            self.chat_area.config(state='normal')
-            for char in message:
-                self.chat_area.insert(tk.END, char)
-                self.chat_area.see(tk.END)  # Ensure it scrolls to the bottom
-                self.chat_area.update()  # Ensure the screen updates immediately
-                time.sleep(0.05)  # Adjust speed here
-            self.chat_area.config(state='disabled')
-
-        # Start typing effect in a separate thread to prevent freezing the UI
-        self.root.after(100, typing_effect)
 
     def close_connection(self):
         sio.disconnect()
