@@ -141,13 +141,17 @@ class ChatClient:
 
     def new_conversation(self):
         """Tạo đoạn hội thoại mới và lưu đoạn hiện tại."""
-        self.conversation_count += 1  # Tăng số cuộc hội thoại đã tạo
+        # Tăng số cuộc hội thoại đã tạo
+        self.conversation_count += 1  
 
-        # Lưu đoạn hội thoại hiện tại vào danh sách
-        if self.current_conversation or len(self.conversations) == 0:
-            conversation_name = f"Conversation {self.conversation_count}"
+        # Nếu có cuộc hội thoại hiện tại, lưu vào danh sách
+        if self.current_conversation:
             self.conversations.append(self.current_conversation)
-            self.conversation_listbox.insert(tk.END, conversation_name)
+
+        # Tạo tên cuộc hội thoại mới
+        conversation_name = f"Conversation {self.conversation_count}"
+        self.conversations.append([])  # Thêm cuộc hội thoại mới vào danh sách
+        self.conversation_listbox.insert(tk.END, conversation_name)  # Hiển thị trong Listbox
 
         # Tạo đoạn hội thoại mới
         self.current_conversation = []  # Làm mới nội dung hiện tại
@@ -169,27 +173,27 @@ class ChatClient:
         self.chat_area.yview(tk.END)  # Cuộn xuống cuối cùng
 
     def delete_conversation(self):
-        """Xóa hội thoại được chọn."""
-        selection = self.conversation_listbox.curselection()
-        if selection:
-            conversation_index = selection[0]
-            # Xóa hội thoại được chọn khỏi danh sách
-            del self.conversations[conversation_index]
-            self.conversation_listbox.delete(conversation_index)
+        """Xóa cuộc hội thoại đã chọn khỏi Listbox và danh sách."""
+        try:
+            # Lấy chỉ mục cuộc hội thoại được chọn
+            selected_index = self.conversation_listbox.curselection()
+            if not selected_index:
+                return  # Không có cuộc hội thoại nào được chọn
 
-            # Hiển thị hội thoại mới nhất hoặc thông báo nếu không còn hội thoại nào
-            if self.conversations:
-                self.display_conversation(len(self.conversations) - 1)
-            else:
-                self.current_conversation = []
-                self.chat_area.config(state='normal')
-                self.chat_area.delete("1.0", tk.END)
-                self.chat_area.insert(tk.END, "No conversations available.\n")
-                self.chat_area.config(state='disabled')
-        else:
-            self.chat_area.config(state='normal')
-            self.chat_area.insert(tk.END, "Please select a conversation to delete.\n")
-            self.chat_area.config(state='disabled')
+            selected_index = selected_index[0]
+        
+            # Xóa cuộc hội thoại khỏi danh sách
+            self.conversations.pop(selected_index)
+
+            # Cập nhật lại Listbox
+            self.conversation_listbox.delete(selected_index)
+        except Exception as e:
+            print(f"Error deleting conversation: {e}")
+    def refresh_conversations(self):
+        """Cập nhật lại danh sách các cuộc hội thoại trong Listbox."""
+        self.conversation_listbox.delete(0, tk.END)  # Xóa hết các mục cũ
+        for i, conv in enumerate(self.conversations):
+            self.conversation_listbox.insert(tk.END, f"Conversation {i + 1}")
 
     def display_conversation(self, index):
         """Hiển thị nội dung hội thoại được chọn."""
