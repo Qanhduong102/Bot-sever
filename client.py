@@ -6,6 +6,7 @@ import speech_recognition as sr
 import sys
 import io
 import time
+import threading
 
 # Thiết lập mã hóa UTF-8 cho console
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -22,7 +23,7 @@ class ChatClient:
         self.root.title("Chatbot Client")
         self.root.geometry("600x600")
         self.root.configure(bg="#1e1e2f")
-        
+
         self.center_window(600, 600)
 
         self.header = tk.Label(
@@ -140,20 +141,28 @@ class ChatClient:
         self.chat_area.see(tk.END)
 
     def typing_effect(self, message):
-        self.chat_area.config(state='normal')
-        for char in message:
-            self.chat_area.insert(tk.END, char)
-            self.chat_area.see(tk.END)
-            self.chat_area.update()
-            time.sleep(0.05)
-        self.chat_area.insert(tk.END, "\n")
-        self.chat_area.config(state='disabled')
+        def type_text():
+            self.chat_area.config(state='normal')
+            for char in message:
+                self.chat_area.insert(tk.END, char)
+                self.chat_area.see(tk.END)
+                self.chat_area.update()
+                time.sleep(0.05)  # Hiệu ứng gõ
+            self.chat_area.insert(tk.END, "\n")
+            self.chat_area.config(state='disabled')
 
-        # Chỉ đọc tin nhắn của bot nếu TTS được bật
-        if self.tts_enabled and message.startswith("Bot:"):
-            bot_response = message[5:]
-            self.engine.say(bot_response)
-            self.engine.runAndWait()
+        def speak_text():
+            if self.tts_enabled and message.startswith("Bot:"):
+                bot_response = message[5:]  # Bỏ phần "Bot: " để đọc nội dung
+                self.engine.say(bot_response)
+                self.engine.runAndWait()
+
+        # Tạo và chạy hai luồng đồng thời
+        typing_thread = threading.Thread(target=type_text)
+        tts_thread = threading.Thread(target=speak_text)
+
+        typing_thread.start()
+        tts_thread.start()
 
     def close_connection(self):
         sio.disconnect()
