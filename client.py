@@ -133,27 +133,48 @@ class ChatClient:
     def new_conversation(self):
         """Xử lý bắt đầu hội thoại mới và lưu lại hội thoại hiện tại."""
         if self.current_conversation:
-            # Lưu lại cuộc hội thoại hiện tại trước khi bắt đầu cuộc hội thoại mới
+            # Lưu lại cuộc hội thoại hiện tại vào danh sách các cuộc hội thoại
             self.conversations.append(self.current_conversation)
 
         # Cập nhật danh sách cuộc hội thoại trong khung bên trái
         conversation_number = len(self.conversations) + 1  # Sửa lại cách tính số cuộc hội thoại
-
         self.conversation_listbox.insert(tk.END, f"Conversation {conversation_number}")
 
         # Tạo cuộc hội thoại mới
         self.current_conversation = []
+        
+        # Cập nhật giao diện: Xóa lịch sử hội thoại hiện tại và thông báo người dùng
         self.chat_area.config(state='normal')
         self.chat_area.delete("1.0", tk.END)
-        self.chat_area.insert(tk.END, "New conversation started.\n")
+        self.chat_area.insert(tk.END, "New conversation started. How can I assist you?\n")
         self.chat_area.config(state='disabled')
+
+        # Dừng việc nhận diện giọng nói trước đó và sẵn sàng cho cuộc hội thoại mới
+        self.tts_enabled = False
+        self.engine.say("Starting a new conversation. How can I assist you?")
+        self.engine.runAndWait()
+        
+        # Bắt đầu nhận diện giọng nói cho cuộc hội thoại mới (nếu có)
+        self.connect_to_server()  # Khôi phục kết nối với server nếu cần
 
     def delete_conversation(self):
         """Xử lý xóa hội thoại hiện tại."""
+        # Cập nhật giao diện để xóa nội dung hội thoại hiện tại
         self.chat_area.config(state='normal')
         self.chat_area.delete("1.0", tk.END)
         self.chat_area.insert(tk.END, "Conversation deleted.\n")
         self.chat_area.config(state='disabled')
+
+        # Xóa hội thoại trong danh sách
+        self.current_conversation = []
+
+        # Ngừng nhận diện giọng nói hiện tại (nếu có)
+        self.tts_enabled = False
+        self.engine.say("The conversation has been deleted.")
+        self.engine.runAndWait()
+        
+        # Cập nhật giao diện danh sách hội thoại
+        self.conversation_listbox.delete(tk.END)  # Xóa hội thoại cuối cùng trong danh sách
 
     def connect_to_server(self):
         @sio.event
