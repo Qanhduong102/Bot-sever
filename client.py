@@ -21,7 +21,7 @@ class ChatClient:
     def __init__(self, root):
         self.root = root
         self.root.title("Chatbot Client")
-        self.root.geometry("600x700")
+        self.root.geometry("600x600")
         self.root.configure(bg="#1e1e2f")
 
         self.center_window(600, 600)
@@ -34,7 +34,7 @@ class ChatClient:
         self.header.grid(row=0, column=0, columnspan=3, pady=(10, 0))
 
         self.chat_area = scrolledtext.ScrolledText(
-            root, wrap=tk.WORD, state='disabled', height=20, width=70,
+            root, wrap=tk.WORD, state='disabled', height=20, width=60,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
