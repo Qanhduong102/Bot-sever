@@ -4,7 +4,11 @@ import socketio
 import threading
 import pyttsx3
 import speech_recognition as sr
+import sys
+import io
 
+# Thiết lập mã hóa UTF-8 cho console
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 # Địa chỉ server WebSocket
 SERVER_URL = "https://bot-sever-jxuc.onrender.com"
 
