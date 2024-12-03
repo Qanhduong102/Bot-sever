@@ -144,8 +144,10 @@ class ChatClient:
             # Lưu lại cuộc hội thoại hiện tại vào danh sách các cuộc hội thoại
             self.conversations.append(self.current_conversation)
 
-        # Cập nhật danh sách cuộc hội thoại trong khung bên trái mà không xóa các cuộc hội thoại cũ
+        # Tính số cuộc hội thoại mới từ danh sách hiện có
         conversation_number = len(self.conversations) + 1  # Tính số cuộc hội thoại
+
+        # Cập nhật danh sách cuộc hội thoại trong khung bên trái mà không xóa các cuộc hội thoại cũ
         self.conversation_listbox.insert(tk.END, f"Conversation {conversation_number}")
 
         # Tạo cuộc hội thoại mới
@@ -165,6 +167,7 @@ class ChatClient:
         # Ngắt kết nối cũ (nếu có) và kết nối lại
         self.disconnect_from_server()  # Ngắt kết nối trước nếu đang kết nối
         self.connect_to_server()  # Kết nối lại cho cuộc hội thoại mới
+
 
     def delete_conversation(self):
         """Xử lý xóa hội thoại hiện tại."""
