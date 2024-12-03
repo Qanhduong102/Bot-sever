@@ -24,6 +24,7 @@ class ChatClient:
         self.root.geometry("800x600")
         self.root.configure(bg="#1e1e2f")
         self.center_window(800, 600)
+        self.conversation_count = 0  # Biến đếm số cuộc hội thoại đã tạo
         self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
         self.current_conversation = []  # Cuộc hội thoại hiện tại
         self.is_connected = False  # Biến theo dõi kết nối
@@ -140,29 +141,32 @@ class ChatClient:
 
     def new_conversation(self):
         """Tạo đoạn hội thoại mới và lưu đoạn hiện tại."""
+        self.conversation_count += 1  # Tăng số cuộc hội thoại đã tạo
+
+        # Lưu đoạn hội thoại hiện tại vào danh sách
         if self.current_conversation or len(self.conversations) == 0:
-            # Lưu đoạn hội thoại hiện tại
-            conversation_name = f"Conversation {len(self.conversations) + 1}"
+            conversation_name = f"Conversation {self.conversation_count}"
             self.conversations.append(self.current_conversation)
             self.conversation_listbox.insert(tk.END, conversation_name)
 
-        #  Tạo đoạn hội thoại mới
-        self.current_conversation = []
+        # Tạo đoạn hội thoại mới
+        self.current_conversation = []  # Làm mới nội dung hiện tại
 
         # Cập nhật giao diện khung chat
         self.chat_area.config(state='normal')
-        self.chat_area.delete("1.0", tk.END)
+        self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
         self.chat_area.insert(tk.END, "🆕 New conversation started. How can I assist you?\n")
-        self.chat_area.config(state='disabled')
+        self.chat_area.config(state='disabled')  # Không cho chỉnh sửa trực tiếp
 
-        # Đảm bảo kết nối server
+        # Giữ kết nối server (nếu bị ngắt, thì kết nối lại)
         if not self.is_connected:
             self.connect_to_server()
 
-        # Tắt TTS nếu đang bật
+        # Tắt tính năng TTS nếu đang bật
         self.tts_enabled = False
-        self.chat_area.yview(tk.END)
 
+        # Đảm bảo giao diện phản ánh trạng thái mới
+        self.chat_area.yview(tk.END)  # Cuộn xuống cuối cùng
 
     def delete_conversation(self):
         """Xóa hội thoại được chọn."""
