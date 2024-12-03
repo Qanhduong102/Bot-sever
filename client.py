@@ -22,6 +22,9 @@ class ChatClient:
         self.root.title("Chatbot Client")
         self.root.geometry("600x600")
         self.root.configure(bg="#1e1e2f")  # Màu nền hiện đại
+        
+        # Định vị cửa sổ ở giữa màn hình
+        self.center_window(600, 600)
 
         # Header
         self.header = tk.Label(
@@ -72,6 +75,13 @@ class ChatClient:
 
         # Kết nối WebSocket
         self.connect_to_server()
+    def center_window(self, width, height):
+        """Căn chỉnh cửa sổ ở giữa màn hình."""
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def connect_to_server(self):
         @sio.event
