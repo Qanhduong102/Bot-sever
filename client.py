@@ -140,9 +140,13 @@ class ChatClient:
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def new_conversation(self):
-        """Tạo đoạn hội thoại mới và lưu đoạn hiện tại."""
+        """Tạo cuộc hội thoại mới và lưu đoạn hội thoại hiện tại."""
+        # Kiểm tra nếu tất cả các cuộc hội thoại đã bị xóa
+        if len(self.conversations) == 0:
+            self.conversation_count = 0  # Đặt lại đếm cuộc hội thoại về 0
+
         # Tăng số cuộc hội thoại đã tạo
-        self.conversation_count += 1  
+        self.conversation_count += 1
 
         # Nếu có cuộc hội thoại hiện tại, lưu vào danh sách
         if self.current_conversation:
