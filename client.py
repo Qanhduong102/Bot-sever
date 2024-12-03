@@ -177,6 +177,29 @@ class ChatClient:
         self.conversation_listbox.delete(tk.END)  # Xóa hội thoại cuối cùng trong danh sách
 
     def connect_to_server(self):
+        """Kết nối lại với server nếu chưa kết nối."""
+        if not self.is_connected:
+            try:
+                # Thực hiện kết nối đến server (giả sử có một hàm kết nối đến server)
+                print("Connecting to server...")
+                # Code thực sự để kết nối đến server của bạn ở đây...
+                self.is_connected = True
+            except Exception as e:
+                print(f"Error connecting to server: {e}")
+        else:
+            print("Already connected to the server.")  # Nếu đã kết nối, không làm gì thêm
+
+    def disconnect_from_server(self):
+        """Ngắt kết nối nếu cần thiết."""
+        if self.is_connected:
+            try:
+                # Code ngắt kết nối với server của bạn ở đây...
+                print("Disconnecting from server...")
+                self.is_connected = False
+            except Exception as e:
+                print(f"Error disconnecting from server: {e}")
+
+    def connect_to_server(self):
         @sio.event
         def connect():
             print("Kết nối thành công tới server!")
