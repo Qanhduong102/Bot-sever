@@ -21,12 +21,10 @@ class ChatClient:
         self.root = root
         self.root.title("Chatbot Client")
         self.root.geometry("600x600")
-        self.root.configure(bg="#1e1e2f")  # Màu nền hiện đại
+        self.root.configure(bg="#1e1e2f")
         
-        # Định vị cửa sổ ở giữa màn hình
         self.center_window(600, 600)
 
-        # Header
         self.header = tk.Label(
             root, text="🎨 Chatbot Client 🎤",
             font=("Montserrat", 16, "bold"),
@@ -34,7 +32,6 @@ class ChatClient:
         )
         self.header.grid(row=0, column=0, columnspan=3, pady=(10, 0))
 
-        # Khu vực hiển thị tin nhắn
         self.chat_area = scrolledtext.ScrolledText(
             root, wrap=tk.WORD, state='disabled', height=20, width=50,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
@@ -42,7 +39,6 @@ class ChatClient:
         )
         self.chat_area.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
 
-        # Entry và nút bấm
         self.entry = tk.Entry(
             root, width=40, font=('Roboto', 12),
             bg="#2c2c3e", fg="#ffffff", insertbackground="#ffffff",
@@ -69,14 +65,15 @@ class ChatClient:
         )
         self.voice_button.grid(row=2, column=2, padx=10, pady=10)
 
-        # TTS
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', 150)
 
-        # Kết nối WebSocket
+        # Biến cờ để kiểm soát việc bot sử dụng TTS
+        self.tts_enabled = False
+
         self.connect_to_server()
+
     def center_window(self, width, height):
-        """Căn chỉnh cửa sổ ở giữa màn hình."""
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         x = (screen_width - width) // 2
@@ -97,7 +94,7 @@ class ChatClient:
         @sio.on('message')
         def on_message(data):
             print(f"Phản hồi từ server: {data}")
-            self.typing_effect(f"Bot: {data}")  # Gọi hàm typing_effect để hiển thị tin nhắn
+            self.typing_effect(f"Bot: {data}")
 
         try:
             sio.connect(SERVER_URL)
@@ -106,6 +103,7 @@ class ChatClient:
             self.display_message(f"Error connecting to server: {e}")
 
     def send_message(self):
+        self.tts_enabled = False  # Tắt TTS khi gửi tin nhắn qua entry
         user_message = self.entry.get()
         if user_message.strip():
             self.display_message(f"You: {user_message}")
@@ -116,6 +114,7 @@ class ChatClient:
             self.entry.delete(0, tk.END)
 
     def speak_message(self):
+        self.tts_enabled = True  # Bật TTS khi sử dụng nút Speak
         recognizer = sr.Recognizer()
         with sr.Microphone() as source:
             try:
@@ -135,30 +134,29 @@ class ChatClient:
                 self.display_message(f"🎤 Bot: Error ({e})")
 
     def display_message(self, message):
-        self.chat_area.config(state='normal')  # Mở chế độ chỉnh sửa cho widget
-        self.chat_area.insert(tk.END, f"{message}\n")  # Thêm tin nhắn và xuống dòng sau mỗi tin nhắn
-        self.chat_area.config(state='disabled')  # Đóng chế độ chỉnh sửa để không bị thay đổi
-        self.chat_area.see(tk.END)  # Cuộn xuống cuối cùng để hiển thị tin nhắn mới
+        self.chat_area.config(state='normal')
+        self.chat_area.insert(tk.END, f"{message}\n")
+        self.chat_area.config(state='disabled')
+        self.chat_area.see(tk.END)
 
     def typing_effect(self, message):
         self.chat_area.config(state='normal')
         for char in message:
             self.chat_area.insert(tk.END, char)
-            self.chat_area.see(tk.END)  # Đảm bảo nó cuộn xuống cuối
-            self.chat_area.update()  # Cập nhật giao diện ngay lập tức
-            time.sleep(0.05)  # Điều chỉnh tốc độ gõ tại đây
-        self.chat_area.insert(tk.END, "\n")  # Thêm dòng mới sau khi gõ xong
+            self.chat_area.see(tk.END)
+            self.chat_area.update()
+            time.sleep(0.05)
+        self.chat_area.insert(tk.END, "\n")
         self.chat_area.config(state='disabled')
 
-        # Đọc tin nhắn của bot bằng TTS
-        if message.startswith("Bot:"):
-            bot_response = message[5:]  # Bỏ phần "Bot: " để lấy nội dung chính
+        # Chỉ đọc tin nhắn của bot nếu TTS được bật
+        if self.tts_enabled and message.startswith("Bot:"):
+            bot_response = message[5:]
             self.engine.say(bot_response)
             self.engine.runAndWait()
 
     def close_connection(self):
         sio.disconnect()
-
 
 if __name__ == "__main__":
     root = tk.Tk()
