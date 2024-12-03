@@ -128,14 +128,14 @@ class ChatClient:
 
     def display_message(self, message):
         self.chat_area.config(state='normal')
-        self.chat_area.insert(tk.END, "")
+        self.chat_area.insert(tk.END, "")  # Ensure the previous text is cleared
         self.chat_area.config(state='disabled')
 
         def typing_effect():
             self.chat_area.config(state='normal')
             for char in message:
                 self.chat_area.insert(tk.END, char)
-                self.chat_area.see(tk.END)
+                self.chat_area.see(tk.END)  # Ensure it scrolls to the bottom
                 self.chat_area.update()  # Ensure the screen updates immediately
                 time.sleep(0.05)  # Adjust speed here
             self.chat_area.config(state='disabled')
