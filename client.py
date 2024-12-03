@@ -1,7 +1,7 @@
 import socketio
 
 # Địa chỉ server WebSocket
-SERVER_URL = "https://socket-server-mt3h.onrender.com"
+SERVER_URL = "https://bot-sever-jxuc.onrender.com"
 
 # Tạo client WebSocket
 sio = socketio.Client()
