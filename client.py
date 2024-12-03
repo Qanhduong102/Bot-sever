@@ -21,19 +21,20 @@ class ChatClient:
     def __init__(self, root):
         self.root = root
         self.root.title("Chatbot Client")
-        self.root.geometry("800x600")  # Tăng chiều rộng để chứa khung mới
+        self.root.geometry("800x600")
         self.root.configure(bg="#1e1e2f")
 
-        self.center_window(800, 600)  # Cập nhật kích thước cửa sổ
+        self.center_window(800, 600)
 
+        # Tiêu đề
         self.header = tk.Label(
             root, text="🎨 Chatbot Client 🎤",
             font=("Montserrat", 16, "bold"),
             fg="#ffffff", bg="#1e1e2f"
         )
-        self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0))
+        self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0), sticky="w")
 
-        # Khung bên trái cho các nút quản lý hội thoại
+        # Khung bên trái cho nút quản lý hội thoại
         self.left_panel = tk.Frame(
             root, width=150, bg="#2c2c3e", highlightthickness=1, highlightbackground="#4CAF50"
         )
@@ -65,39 +66,41 @@ class ChatClient:
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
-        self.chat_area.grid(row=1, column=1, padx=10, pady=10)
+        self.chat_area.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
-        # Ô nhập liệu và các nút điều khiển
+        # Khung nhập tin nhắn và nút gửi
+        self.bottom_panel = tk.Frame(root, bg="#1e1e2f")
+        self.bottom_panel.grid(row=2, column=1, padx=10, pady=10, sticky="w")
+
         self.entry = tk.Entry(
-            root, width=40, font=('Roboto', 12),
+            self.bottom_panel, width=40, font=('Roboto', 12),
             bg="#2c2c3e", fg="#ffffff", insertbackground="#ffffff",
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
-        self.entry.grid(row=2, column=1, padx=10, pady=10)
+        self.entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
         self.entry.bind("<Return>", lambda event: self.send_message())
 
         self.send_button = tk.Button(
-            root, text="Send",
+            self.bottom_panel, text="Send",
             command=self.send_message,
             bg='#4CAF50', fg='white', font=('Roboto', 12, 'bold'),
             relief='flat', activebackground="#45a049", activeforeground="white",
             cursor="hand2"
         )
-        self.send_button.grid(row=2, column=2, padx=10, pady=10)
+        self.send_button.pack(side="left", padx=(0, 10))
 
         self.voice_button = tk.Button(
-            root, text="🎤 Speak",
+            self.bottom_panel, text="🎤 Speak",
             command=self.speak_message,
             bg='#2196F3', fg='white', font=('Roboto', 12, 'bold'),
             relief='flat', activebackground="#1976D2", activeforeground="white",
             cursor="hand2"
         )
-        self.voice_button.grid(row=2, column=3, padx=10, pady=10)
+        self.voice_button.pack(side="left")
 
+        # Thiết lập engine TTS
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', 150)
-
-        # Biến cờ để kiểm soát việc bot sử dụng TTS
         self.tts_enabled = False
 
         self.connect_to_server()
