@@ -23,7 +23,10 @@ class ChatClient:
         self.root.title("Chatbot Client")
         self.root.geometry("800x600")
         self.root.configure(bg="#1e1e2f")
-
+        self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
+        self.current_conversation = []  # Cuộc hội thoại hiện tại
+        self.is_connected = False  # Biến theo dõi kết nối
+        self.connect_to_server()
         self.center_window(800, 600)
 
         # Tiêu đề
@@ -173,28 +176,36 @@ class ChatClient:
             self.chat_area.insert(tk.END, "Conversation deleted.\n")
             self.chat_area.config(state='disabled')
 
+    def display_conversation(self, conversation_index):
+        """Hiển thị nội dung của cuộc hội thoại cũ."""
+        self.chat_area.config(state='normal')
+        self.chat_area.delete("1.0", tk.END)
+
+        # Hiển thị các tin nhắn trong cuộc hội thoại được chọn
+        conversation = self.conversations[conversation_index]
+        for message in conversation:
+            self.chat_area.insert(tk.END, message + "\n")
+
+        self.chat_area.config(state='disabled')
+
+    def on_conversation_select(self, event):
+        """Xử lý khi người dùng chọn cuộc hội thoại trong danh sách."""
+        selection = self.conversation_listbox.curselection()
+        if selection:
+            conversation_index = selection[0]  # Lấy index của cuộc hội thoại được chọn
+            self.display_conversation(conversation_index)  # Hiển thị cuộc hội thoại đó
+
     def connect_to_server(self):
-        """Kết nối lại với server nếu chưa kết nối."""
-        if not self.is_connected:
-            try:
-                # Thực hiện kết nối đến server (giả sử có một hàm kết nối đến server)
-                print("Connecting to server...")
-                # Code thực sự để kết nối đến server của bạn ở đây...
-                self.is_connected = True
-            except Exception as e:
-                print(f"{e}")
-        else:
-            print("Already connected to the server.")  # Nếu đã kết nối, không làm gì thêm
+        """Kết nối tới server (giả sử là server chat)."""
+        try:
+            # Logic kết nối tới server
+            self.is_connected = True
+        except Exception as e:
+            print(f"Error connecting to server: {e}")
 
     def disconnect_from_server(self):
-        """Ngắt kết nối nếu cần thiết."""
-        if self.is_connected:
-            try:
-                # Code ngắt kết nối với server của bạn ở đây...
-                print("Disconnecting from server...")
-                self.is_connected = False
-            except Exception as e:
-                print(f"Error disconnecting from server: {e}")
+        """Ngắt kết nối khỏi server (nếu có)."""
+        self.is_connected = False
 
     def connect_to_server(self):
         @sio.event
