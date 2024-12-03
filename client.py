@@ -21,31 +21,59 @@ class ChatClient:
     def __init__(self, root):
         self.root = root
         self.root.title("Chatbot Client")
-        self.root.geometry("600x600")
+        self.root.geometry("800x600")  # Tăng chiều rộng để chứa khung mới
         self.root.configure(bg="#1e1e2f")
 
-        self.center_window(600, 600)
+        self.center_window(800, 600)  # Cập nhật kích thước cửa sổ
 
         self.header = tk.Label(
             root, text="🎨 Chatbot Client 🎤",
             font=("Montserrat", 16, "bold"),
             fg="#ffffff", bg="#1e1e2f"
         )
-        self.header.grid(row=0, column=0, columnspan=3, pady=(10, 0))
+        self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0))
 
+        # Khung bên trái cho các nút quản lý hội thoại
+        self.left_panel = tk.Frame(
+            root, width=150, bg="#2c2c3e", highlightthickness=1, highlightbackground="#4CAF50"
+        )
+        self.left_panel.grid(row=1, column=0, rowspan=2, padx=10, pady=10, sticky="ns")
+
+        # Nút New Conversation
+        self.new_conv_button = tk.Button(
+            self.left_panel, text="New Conversation",
+            command=self.new_conversation,
+            bg="#4CAF50", fg="white", font=("Roboto", 10, "bold"),
+            relief="flat", activebackground="#45a049", activeforeground="white",
+            cursor="hand2"
+        )
+        self.new_conv_button.pack(pady=(20, 10), padx=10, fill="x")
+
+        # Nút Delete Conversation
+        self.delete_conv_button = tk.Button(
+            self.left_panel, text="Delete Conversation",
+            command=self.delete_conversation,
+            bg="#F44336", fg="white", font=("Roboto", 10, "bold"),
+            relief="flat", activebackground="#D32F2F", activeforeground="white",
+            cursor="hand2"
+        )
+        self.delete_conv_button.pack(pady=(10, 20), padx=10, fill="x")
+
+        # Khung hiển thị hội thoại
         self.chat_area = scrolledtext.ScrolledText(
             root, wrap=tk.WORD, state='disabled', height=20, width=60,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
-        self.chat_area.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
+        self.chat_area.grid(row=1, column=1, padx=10, pady=10)
 
+        # Ô nhập liệu và các nút điều khiển
         self.entry = tk.Entry(
             root, width=40, font=('Roboto', 12),
             bg="#2c2c3e", fg="#ffffff", insertbackground="#ffffff",
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
-        self.entry.grid(row=2, column=0, padx=10, pady=10)
+        self.entry.grid(row=2, column=1, padx=10, pady=10)
         self.entry.bind("<Return>", lambda event: self.send_message())
 
         self.send_button = tk.Button(
@@ -55,7 +83,7 @@ class ChatClient:
             relief='flat', activebackground="#45a049", activeforeground="white",
             cursor="hand2"
         )
-        self.send_button.grid(row=2, column=1, padx=10, pady=10)
+        self.send_button.grid(row=2, column=2, padx=10, pady=10)
 
         self.voice_button = tk.Button(
             root, text="🎤 Speak",
@@ -64,7 +92,7 @@ class ChatClient:
             relief='flat', activebackground="#1976D2", activeforeground="white",
             cursor="hand2"
         )
-        self.voice_button.grid(row=2, column=2, padx=10, pady=10)
+        self.voice_button.grid(row=2, column=3, padx=10, pady=10)
 
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', 150)
@@ -73,6 +101,27 @@ class ChatClient:
         self.tts_enabled = False
 
         self.connect_to_server()
+
+    def center_window(self, width, height):
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
+
+    def new_conversation(self):
+        """Xử lý bắt đầu hội thoại mới."""
+        self.chat_area.config(state='normal')
+        self.chat_area.delete("1.0", tk.END)
+        self.chat_area.insert(tk.END, "New conversation started.\n")
+        self.chat_area.config(state='disabled')
+
+    def delete_conversation(self):
+        """Xử lý xóa hội thoại hiện tại."""
+        self.chat_area.config(state='normal')
+        self.chat_area.delete("1.0", tk.END)
+        self.chat_area.insert(tk.END, "Conversation deleted.\n")
+        self.chat_area.config(state='disabled')
 
     def center_window(self, width, height):
         screen_width = self.root.winfo_screenwidth()
