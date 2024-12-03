@@ -63,7 +63,7 @@ def handle_message(msg):
     elif "news" in msg.lower():
         response = get_news()
     else:
-        response = f"Server echo: {msg}"
+        response = f"{msg}"
 
     # Gửi lại tin nhắn cho client
     send(response)
