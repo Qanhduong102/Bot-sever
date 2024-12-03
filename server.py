@@ -10,6 +10,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
 socketio = SocketIO(app)
 
+# Khởi tạo Nominatim geolocator
+geolocator = Nominatim(user_agent="geoapiExercises")
+
 # Hàm lấy ngày hôm nay
 def get_date():
     today = datetime.date.today()
@@ -68,21 +71,58 @@ def ask_about_hobbies():
 def tell_features():
     return "I can tell you the time, weather, news, and even find out your location. I can also chat with you about various topics!"
 
-def tell_joke():
-    jokes = [
-        "Why don’t skeletons fight each other? They don’t have the guts.",
-        "Why did the scarecrow win an award? Because he was outstanding in his field!",
-        "I told my wife she was drawing her eyebrows too high. She looked surprised."
-    ]
-    return random.choice(jokes)
+# Lưu trữ câu hỏi và câu trả lời của mỗi joke
+jokes = [
+    {
+        "question": "Why don’t skeletons fight each other?",
+        "answer": "They don’t have the guts."
+    },
+    {
+        "question": "Why did the scarecrow win an award?",
+        "answer": "Because he was outstanding in his field!"
+    },
+    {
+        "question": "I told my wife she was drawing her eyebrows too high.",
+        "answer": "She looked surprised."
+    }
+]
 
-def give_quote():
-    quotes = [
-        "The only way to do great work is to love what you do. – Steve Jobs",
-        "In the middle of every difficulty lies opportunity. – Albert Einstein",
-        "Life is what happens when you’re busy making other plans. – John Lennon"
-    ]
-    return random.choice(quotes)
+def tell_joke(msg):
+    # Kiểm tra nếu người dùng đã yêu cầu câu chuyện hài
+    if "tell me a joke" in msg.lower():
+        joke = random.choice(jokes)
+        return joke["question"]  # Trả về câu hỏi của joke
+    elif "why" in msg.lower():
+        # Khi người dùng hỏi "why", bot sẽ trả lời
+        return random.choice(jokes)["answer"]
+    else:
+        return "Say 'tell me a joke' to hear a joke, and 'why' to hear the answer."
+
+def give_quote(msg):
+    # Thêm điều kiện random để có thể trả lời quote hay không
+    if random.choice([True, False]):
+        quotes = [
+            "The only way to do great work is to love what you do. – Steve Jobs",
+            "In the middle of every difficulty lies opportunity. – Albert Einstein",
+            "Life is what happens when you’re busy making other plans. – John Lennon"
+        ]
+        return random.choice(quotes)
+    else:
+        return "I don't feel like giving a quote right now."
+
+# Lấy vị trí người dùng từ địa chỉ IP
+def get_location():
+    try:
+        response = requests.get('http://ip-api.com/json/')
+        data = response.json()
+        if data['status'] == 'fail':
+            return "Unable to get your location."
+        
+        city = data.get('city', 'Unknown')
+        country = data.get('country', 'Unknown')
+        return f"Your location is {city}, {country}."
+    except requests.exceptions.RequestException as e:
+        return f"Error fetching location: {e}"
 
 @app.route("/", methods=["GET"])
 def home():
@@ -112,11 +152,13 @@ def handle_message(msg):
     elif "hobbies" in msg.lower():
         response = ask_about_hobbies()
     elif "joke" in msg.lower() or "funny" in msg.lower():
-        response = tell_joke()
+        response = tell_joke(msg)
     elif "quote" in msg.lower():
-        response = give_quote()
+        response = give_quote(msg)
     elif "what can you do" in msg.lower():
         response = tell_features()
+    elif "location" in msg.lower():
+        response = get_location()  # Gọi hàm lấy vị trí người dùng
     else:
         response = f"{msg}"
 
