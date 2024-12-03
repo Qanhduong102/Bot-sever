@@ -139,26 +139,31 @@ class ChatClient:
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def new_conversation(self):
-        """Bắt đầu hội thoại mới và lưu hội thoại hiện tại."""
+        """Tạo đoạn hội thoại mới và lưu đoạn hiện tại."""
+        # Nếu có đoạn chat hiện tại, lưu vào danh sách hội thoại
         if self.current_conversation:
-            # Lưu lại cuộc hội thoại hiện tại nếu có
-            self.conversations.append(self.current_conversation)
+            self.conversations.append(self.current_conversation)  # Lưu đoạn hội thoại
             conversation_name = f"Conversation {len(self.conversations)}"
-            self.conversation_listbox.insert(tk.END, conversation_name)
+            self.conversation_listbox.insert(tk.END, conversation_name)  # Hiển thị trong Listbox
 
-        # Tạo hội thoại mới
-        self.current_conversation = []
+        # Tạo đoạn hội thoại mới
+        self.current_conversation = []  # Làm mới nội dung hiện tại
+
+        # Cập nhật giao diện khung chat
         self.chat_area.config(state='normal')
-        self.chat_area.delete("1.0", tk.END)
-        self.chat_area.insert(tk.END, "New conversation started. How can I assist you?\n")
-        self.chat_area.config(state='disabled')
+        self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
+        self.chat_area.insert(tk.END, "🆕 New conversation started. How can I assist you?\n")
+        self.chat_area.config(state='disabled')  # Không cho chỉnh sửa trực tiếp
 
-        # Tắt tính năng TTS và chuẩn bị cho hội thoại mới
-        self.tts_enabled = False
-
-        # Giữ kết nối server nếu cần, không cần ngắt kết nối
+        # Giữ kết nối server (nếu bị ngắt, thì kết nối lại)
         if not self.is_connected:
             self.connect_to_server()
+
+        # Tắt tính năng TTS nếu đang bật
+        self.tts_enabled = False
+
+        # Đảm bảo giao diện phản ánh trạng thái mới
+        self.chat_area.yview(tk.END)  # Cuộn xuống cuối cùng
 
     def delete_conversation(self):
         """Xóa hội thoại được chọn."""
