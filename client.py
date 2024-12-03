@@ -40,7 +40,15 @@ class ChatClient:
         )
         self.left_panel.grid(row=1, column=0, rowspan=2, padx=10, pady=10, sticky="ns")
 
-        # Tạo khung chứa hai nút
+        # Listbox để hiển thị các cuộc hội thoại
+        self.conversation_listbox = tk.Listbox(
+            self.left_panel, bg="#2c2c3e", fg="#f0f0f0", font=("Roboto", 12),
+            bd=0, selectbackground="#4CAF50", highlightthickness=1, highlightbackground="#4CAF50",
+            height=15
+        )
+        self.conversation_listbox.pack(padx=10, pady=10, fill="y")
+
+        # Tạo khung chứa các nút
         self.button_frame = tk.Frame(
             self.left_panel, bg="#2c2c3e", highlightthickness=1, highlightbackground="#4CAF50", padx=10, pady=10
         )
@@ -127,6 +135,10 @@ class ChatClient:
         if self.current_conversation:
             # Lưu lại cuộc hội thoại hiện tại trước khi bắt đầu cuộc hội thoại mới
             self.conversations.append(self.current_conversation)
+
+        # Cập nhật danh sách cuộc hội thoại trong khung bên trái
+        conversation_number = len(self.conversations) + 1
+        self.conversation_listbox.insert(tk.END, f"Conversation {conversation_number}")
 
         # Tạo cuộc hội thoại mới
         self.current_conversation = []
