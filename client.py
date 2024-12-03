@@ -218,8 +218,8 @@ class ChatClient:
         try:
             sio.connect(SERVER_URL)
         except Exception as e:
-            print(f"Error connecting to server: {e}")
-            self.display_message(f"Error connecting to server: {e}")
+            print(f": {e}")
+            self.display_message(f": {e}")
 
     def send_message(self):
         self.tts_enabled = False  # Tắt TTS khi gửi tin nhắn qua entry
