@@ -186,10 +186,11 @@ class ChatClient:
         self.chat_area.config(state='normal')
         self.chat_area.delete("1.0", tk.END)
 
-        # Hiển thị các tin nhắn trong cuộc hội thoại được chọn
-        conversation = self.conversations[conversation_index]
-        for message in conversation:
-            self.chat_area.insert(tk.END, message + "\n")
+        # Kiểm tra xem conversation_index có hợp lệ không
+        if 0 <= conversation_index < len(self.conversations):
+            conversation = self.conversations[conversation_index]
+            for message in conversation:
+                self.chat_area.insert(tk.END, message + "\n")
 
         self.chat_area.config(state='disabled')
 
