@@ -21,7 +21,7 @@ class ChatClient:
     def __init__(self, root):
         self.root = root
         self.root.title("Chatbot Client")
-        self.root.geometry("600x600")
+        self.root.geometry("600x700")
         self.root.configure(bg="#1e1e2f")
 
         self.center_window(600, 600)
