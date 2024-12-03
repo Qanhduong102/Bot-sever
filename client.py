@@ -138,22 +138,29 @@ class ChatClient:
         x = (screen_width - width) // 2
         y = (screen_height - height) // 2
         self.root.geometry(f"{width}x{height}+{x}+{y}")
+    def get_next_conversation_number(self):
+        """Lấy số thứ tự cuộc hội thoại tiếp theo dựa trên các cuộc hội thoại còn tồn tại."""
+        # Kiểm tra các cuộc hội thoại hiện tại và tìm số thứ tự nhỏ nhất bị thiếu
+        existing_numbers = [int(conv.split()[1]) for conv in self.conversation_listbox.get(0, tk.END)]
+        next_number = 1  # Bắt đầu từ 1
+
+        # Tìm số thứ tự tiếp theo mà chưa được sử dụng
+        while next_number in existing_numbers:
+            next_number += 1
+
+        return next_number
 
     def new_conversation(self):
         """Tạo cuộc hội thoại mới và lưu đoạn hội thoại hiện tại."""
-        # Kiểm tra nếu tất cả các cuộc hội thoại đã bị xóa
-        if len(self.conversations) == 0:
-            self.conversation_count = 0  # Đặt lại đếm cuộc hội thoại về 0
-
-        # Tăng số cuộc hội thoại đã tạo
-        self.conversation_count += 1
+        # Lấy số thứ tự cuộc hội thoại tiếp theo
+        next_conversation_number = self.get_next_conversation_number()
 
         # Nếu có cuộc hội thoại hiện tại, lưu vào danh sách
         if self.current_conversation:
             self.conversations.append(self.current_conversation)
 
         # Tạo tên cuộc hội thoại mới
-        conversation_name = f"Conversation {self.conversation_count}"
+        conversation_name = f"Conversation {next_conversation_number}"
         self.conversations.append([])  # Thêm cuộc hội thoại mới vào danh sách
         self.conversation_listbox.insert(tk.END, conversation_name)  # Hiển thị trong Listbox
 
@@ -185,19 +192,32 @@ class ChatClient:
                 return  # Không có cuộc hội thoại nào được chọn
 
             selected_index = selected_index[0]
-        
+            # Lấy tên cuộc hội thoại và số thứ tự
+            conversation_name = self.conversation_listbox.get(selected_index)
+            conversation_number = int(conversation_name.split()[1])
+
             # Xóa cuộc hội thoại khỏi danh sách
             self.conversations.pop(selected_index)
 
             # Cập nhật lại Listbox
             self.conversation_listbox.delete(selected_index)
+
+            # Nếu tất cả các cuộc hội thoại đã bị xóa, đặt lại đếm
+            if len(self.conversations) == 0:
+                self.conversation_count = 0
+
+            # Cập nhật số thứ tự cuộc hội thoại sau khi xóa
+            self.refresh_conversations()
+
         except Exception as e:
             print(f"Error deleting conversation: {e}")
     def refresh_conversations(self):
         """Cập nhật lại danh sách các cuộc hội thoại trong Listbox."""
         self.conversation_listbox.delete(0, tk.END)  # Xóa hết các mục cũ
-        for i, conv in enumerate(self.conversations):
-            self.conversation_listbox.insert(tk.END, f"Conversation {i + 1}")
+        for conv in self.conversations:
+            # Thêm vào danh sách với tên cuộc hội thoại
+            self.conversation_listbox.insert(tk.END, f"Conversation {self.get_next_conversation_number()}")
+
 
     def display_conversation(self, index):
         """Hiển thị nội dung hội thoại được chọn."""
