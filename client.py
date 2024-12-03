@@ -8,8 +8,9 @@ import io
 
 # Thiết lập mã hóa UTF-8 cho console
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 # Địa chỉ server WebSocket
-SERVER_URL = "https://bot-sever-jxuc.onrender.com"
+SERVER_URL = "https://bot-sever-1-n0a3.onrender.com"
 
 # Tạo client WebSocket
 sio = socketio.Client()
