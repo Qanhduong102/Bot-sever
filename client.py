@@ -27,15 +27,15 @@ class ChatClient:
         self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
         self.current_conversation = []  # Cuộc hội thoại hiện tại
         self.is_connected = False  # Biến theo dõi kết nối
-        # Listbox để hiển thị các cuộc hội thoại
-        self.conversation_listbox = tk.Listbox(
-            self.left_panel, bg="#2c2c3e", fg="#f0f0f0", font=("Roboto", 12),
-            bd=0, selectbackground="#4CAF50", highlightthickness=1, highlightbackground="#4CAF50",
-            height=15
-        )
-        self.conversation_listbox.pack(padx=10, pady=10, fill="y")
         # Gắn sự kiện chọn hội thoại trong Listbox
         self.conversation_listbox.bind("<<ListboxSelect>>", self.select_conversation)
+
+        self.chat_area = scrolledtext.ScrolledText(
+            root, wrap=tk.WORD, state='disabled', height=20, width=60,
+            bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
+            bd=0, highlightthickness=1, highlightbackground="#4CAF50"
+        )
+        self.chat_area.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
         # Tiêu đề
         self.header = tk.Label(
@@ -167,22 +167,6 @@ class ChatClient:
 
         # Đảm bảo giao diện phản ánh trạng thái mới
         self.chat_area.yview(tk.END)  # Cuộn xuống cuối cùng
-    def select_conversation(self, event):
-        """Hiển thị hội thoại được chọn từ Listbox."""
-        selection = self.conversation_listbox.curselection()  # Lấy mục được chọn
-        if selection:  # Nếu có mục được chọn
-            index = selection[0]  # Chỉ số của mục
-            self.current_conversation = self.conversations[index]  # Lấy hội thoại từ danh sách
-            self.chat_area.config(state='normal')
-            self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
-            for message in self.current_conversation:  # Hiển thị từng dòng
-                self.chat_area.insert(tk.END, f"{message}\n")
-            self.chat_area.config(state='disabled')  # Đặt khung chỉ đọc
-        else:
-            self.chat_area.config(state='normal')
-            self.chat_area.delete("1.0", tk.END)
-            self.chat_area.insert(tk.END, "No conversation selected.\n")
-            self.chat_area.config(state='disabled')
     def delete_conversation(self):
         """Xóa hội thoại được chọn."""
         selection = self.conversation_listbox.curselection()
