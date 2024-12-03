@@ -15,6 +15,24 @@ def get_time():
     now = datetime.datetime.now()
     return f"The current time is {now.strftime('%H:%M:%S')}."
 
+# Hàm lấy ngày hôm nay
+def get_date():
+    today = datetime.date.today()
+    return f"Today's date is {today.strftime('%Y-%m-%d')}."
+
+# Hàm lấy thời gian hiện tại
+def get_current_time():
+    now = datetime.datetime.now()
+    return f"The current time is {now.strftime('%H:%M:%S')}."
+
+# Hàm lấy thời gian của một ngày cụ thể
+def get_specific_day_time(date_str):
+    try:
+        specific_day = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+        return f"The time on {specific_day.strftime('%Y-%m-%d')} was {specific_day.strftime('%H:%M:%S')}."
+    except ValueError:
+        return "Invalid date format. Please use YYYY-MM-DD."
+
 # Hàm lấy vị trí người dùng dựa trên địa chỉ IP
 def get_location(ip_address):
     geolocator = Nominatim(user_agent="chatbot")
@@ -62,6 +80,14 @@ def handle_message(msg):
         response = get_weather()
     elif "news" in msg.lower():
         response = get_news()
+    elif "today's date" in msg.lower() or "what's the date" in msg.lower():
+        response = get_date()
+    elif "what time is it" in msg.lower():
+        response = get_current_time()
+    elif "what's the time on" in msg.lower():
+        # Lấy thời gian của ngày được chỉ định
+        date_str = msg.lower().split("on")[-1].strip()
+        response = get_specific_day_time(date_str)
     else:
         response = f"{msg}"
 
