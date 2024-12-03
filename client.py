@@ -27,8 +27,6 @@ class ChatClient:
         self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
         self.current_conversation = []  # Cuộc hội thoại hiện tại
         self.is_connected = False  # Biến theo dõi kết nối
-        # Gắn sự kiện chọn hội thoại trong Listbox
-        self.conversation_listbox.bind("<<ListboxSelect>>", self.select_conversation)
         # Listbox để hiển thị các cuộc hội thoại
         self.conversation_listbox = tk.Listbox(
             self.left_panel, bg="#2c2c3e", fg="#f0f0f0", font=("Roboto", 12),
@@ -36,7 +34,8 @@ class ChatClient:
             height=15
         )
         self.conversation_listbox.pack(padx=10, pady=10, fill="y")
-
+        # Gắn sự kiện chọn hội thoại trong Listbox
+        self.conversation_listbox.bind("<<ListboxSelect>>", self.select_conversation)
 
         # Tiêu đề
         self.header = tk.Label(
