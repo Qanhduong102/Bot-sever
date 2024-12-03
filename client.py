@@ -139,55 +139,63 @@ class ChatClient:
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def new_conversation(self):
-        """Xử lý bắt đầu hội thoại mới và lưu lại hội thoại hiện tại."""
+        """Bắt đầu hội thoại mới và lưu hội thoại hiện tại."""
         if self.current_conversation:
-            # Lưu lại cuộc hội thoại hiện tại vào danh sách các cuộc hội thoại
+            # Lưu lại cuộc hội thoại hiện tại nếu có
             self.conversations.append(self.current_conversation)
+            conversation_name = f"Conversation {len(self.conversations)}"
+            self.conversation_listbox.insert(tk.END, conversation_name)
 
-        # Tạo tên cuộc hội thoại mới
-        conversation_name = f"Conversation {len(self.conversations) + 1}"
-
-        # Cập nhật danh sách cuộc hội thoại trong khung bên trái mà không xóa các cuộc hội thoại cũ
-        self.conversation_listbox.insert(tk.END, conversation_name)
-
-        # Tạo cuộc hội thoại mới
-        self.current_conversation = []  # Xóa danh sách cuộc hội thoại hiện tại
-
-        # Cập nhật giao diện: Xóa lịch sử hội thoại hiện tại và thông báo người dùng
+        # Tạo hội thoại mới
+        self.current_conversation = []
         self.chat_area.config(state='normal')
-        self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
+        self.chat_area.delete("1.0", tk.END)
         self.chat_area.insert(tk.END, "New conversation started. How can I assist you?\n")
         self.chat_area.config(state='disabled')
 
-        # Dừng việc nhận diện giọng nói trước đó và sẵn sàng cho cuộc hội thoại mới
+        # Tắt tính năng TTS và chuẩn bị cho hội thoại mới
         self.tts_enabled = False
-        self.engine.say("Starting a new conversation. How can I assist you?")
-        self.engine.runAndWait()
 
-        # Ngắt kết nối cũ (nếu có) và kết nối lại
-        self.disconnect_from_server()  # Ngắt kết nối trước nếu đang kết nối
-        self.connect_to_server()  # Kết nối lại cho cuộc hội thoại mới
+        # Giữ kết nối server nếu cần, không cần ngắt kết nối
+        if not self.is_connected:
+            self.connect_to_server()
 
     def delete_conversation(self):
-        """Xử lý xóa hội thoại hiện tại."""
-        if self.conversations:
-            # Xóa hội thoại hiện tại khỏi danh sách các cuộc hội thoại
-            self.conversations.pop()
+        """Xóa hội thoại được chọn."""
+        selection = self.conversation_listbox.curselection()
+        if selection:
+            conversation_index = selection[0]
+            # Xóa hội thoại được chọn khỏi danh sách
+            del self.conversations[conversation_index]
+            self.conversation_listbox.delete(conversation_index)
 
-            # Cập nhật lại danh sách các cuộc hội thoại trên giao diện
-            self.conversation_listbox.delete(tk.END)  # Xóa cuộc hội thoại đã xóa
-
-            # Cập nhật nội dung hội thoại trên giao diện
+            # Hiển thị hội thoại mới nhất hoặc thông báo nếu không còn hội thoại nào
+            if self.conversations:
+                self.display_conversation(len(self.conversations) - 1)
+            else:
+                self.current_conversation = []
+                self.chat_area.config(state='normal')
+                self.chat_area.delete("1.0", tk.END)
+                self.chat_area.insert(tk.END, "No conversations available.\n")
+                self.chat_area.config(state='disabled')
+        else:
             self.chat_area.config(state='normal')
-            self.chat_area.delete("1.0", tk.END)  # Xóa nội dung hiện tại
-            self.chat_area.insert(tk.END, "Conversation deleted.\n")
+            self.chat_area.insert(tk.END, "Please select a conversation to delete.\n")
             self.chat_area.config(state='disabled')
 
-            # Nếu không còn cuộc hội thoại nào, khôi phục lại giao diện như lúc ban đầu
-        if not self.conversations:
+    def display_conversation(self, index):
+        """Hiển thị nội dung hội thoại được chọn."""
+        if 0 <= index < len(self.conversations):
+            self.current_conversation = self.conversations[index]
             self.chat_area.config(state='normal')
             self.chat_area.delete("1.0", tk.END)
-            self.chat_area.insert(tk.END, "No conversations available.\n")
+            for message in self.current_conversation:
+                self.chat_area.insert(tk.END, f"{message}\n")
+            self.chat_area.config(state='disabled')
+        else:
+            self.chat_area.config(state='normal')
+            self.chat_area.delete("1.0", tk.END)
+            self.chat_area.insert(tk.END, "No conversation selected.\n")
             self.chat_area.config(state='disabled')
 
     def on_conversation_select(self, event):
