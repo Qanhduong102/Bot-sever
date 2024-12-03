@@ -29,13 +29,14 @@ class ChatClient:
         self.is_connected = False  # Biến theo dõi kết nối
         # Gắn sự kiện chọn hội thoại trong Listbox
         self.conversation_listbox.bind("<<ListboxSelect>>", self.select_conversation)
-
-        self.chat_area = scrolledtext.ScrolledText(
-            root, wrap=tk.WORD, state='disabled', height=20, width=60,
-            bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
-            bd=0, highlightthickness=1, highlightbackground="#4CAF50"
+        # Listbox để hiển thị các cuộc hội thoại
+        self.conversation_listbox = tk.Listbox(
+            self.left_panel, bg="#2c2c3e", fg="#f0f0f0", font=("Roboto", 12),
+            bd=0, selectbackground="#4CAF50", highlightthickness=1, highlightbackground="#4CAF50",
+            height=15
         )
-        self.chat_area.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        self.conversation_listbox.pack(padx=10, pady=10, fill="y")
+
 
         # Tiêu đề
         self.header = tk.Label(
