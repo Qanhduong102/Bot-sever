@@ -24,11 +24,9 @@ class ChatClient:
         self.root.geometry("800x600")
         self.root.configure(bg="#1e1e2f")
         self.center_window(800, 600)
-
         self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
         self.current_conversation = []  # Cuộc hội thoại hiện tại
         self.is_connected = False  # Biến theo dõi kết nối
-
         self.chat_area = scrolledtext.ScrolledText(
             root, wrap=tk.WORD, state='disabled', height=20, width=60,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
@@ -142,31 +140,33 @@ class ChatClient:
 
     def new_conversation(self):
         """Xử lý bắt đầu hội thoại mới và lưu lại hội thoại hiện tại."""
-        # Lưu cuộc hội thoại hiện tại vào danh sách (nếu không rỗng)
         if self.current_conversation:
+            # Lưu lại cuộc hội thoại hiện tại vào danh sách các cuộc hội thoại
             self.conversations.append(self.current_conversation)
 
         # Tạo tên cuộc hội thoại mới
         conversation_name = f"Conversation {len(self.conversations) + 1}"
 
-        # Thêm tên vào Listbox
+        # Cập nhật danh sách cuộc hội thoại trong khung bên trái mà không xóa các cuộc hội thoại cũ
         self.conversation_listbox.insert(tk.END, conversation_name)
 
         # Tạo cuộc hội thoại mới
-        self.current_conversation = []  # Đặt lại danh sách cuộc hội thoại hiện tại
+        self.current_conversation = []  # Xóa danh sách cuộc hội thoại hiện tại
 
-        # Hiển thị nội dung của cuộc hội thoại cũ trong giao diện nếu có
+        # Cập nhật giao diện: Xóa lịch sử hội thoại hiện tại và thông báo người dùng
         self.chat_area.config(state='normal')
-        if self.conversations:  # Nếu có hội thoại trước đó, hiển thị lại nội dung
-            last_conversation = '\n'.join(self.conversations[-1])
-            self.chat_area.insert(tk.END, last_conversation + "\n")
+        self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
         self.chat_area.insert(tk.END, "New conversation started. How can I assist you?\n")
         self.chat_area.config(state='disabled')
 
-        # Cập nhật thông báo cho người dùng
+        # Dừng việc nhận diện giọng nói trước đó và sẵn sàng cho cuộc hội thoại mới
         self.tts_enabled = False
         self.engine.say("Starting a new conversation. How can I assist you?")
         self.engine.runAndWait()
+
+        # Ngắt kết nối cũ (nếu có) và kết nối lại
+        self.disconnect_from_server()  # Ngắt kết nối trước nếu đang kết nối
+        self.connect_to_server()  # Kết nối lại cho cuộc hội thoại mới
 
     def delete_conversation(self):
         """Xử lý xóa hội thoại hiện tại."""
@@ -187,7 +187,7 @@ class ChatClient:
         if not self.conversations:
             self.chat_area.config(state='normal')
             self.chat_area.delete("1.0", tk.END)
-            self.chat_area.insert(tk.END, "No conversations.\n")
+            self.chat_area.insert(tk.END, "No conversations available.\n")
             self.chat_area.config(state='disabled')
 
     def on_conversation_select(self, event):
