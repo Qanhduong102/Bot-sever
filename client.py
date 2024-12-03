@@ -27,9 +27,6 @@ class ChatClient:
         self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
         self.current_conversation = []  # Cuộc hội thoại hiện tại
         self.is_connected = False  # Biến theo dõi kết nối
-        # Gắn sự kiện chọn hội thoại trong Listbox
-        self.conversation_listbox.bind("<<ListboxSelect>>", self.select_conversation)
-
         self.chat_area = scrolledtext.ScrolledText(
             root, wrap=tk.WORD, state='disabled', height=20, width=60,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
@@ -167,6 +164,7 @@ class ChatClient:
 
         # Đảm bảo giao diện phản ánh trạng thái mới
         self.chat_area.yview(tk.END)  # Cuộn xuống cuối cùng
+
     def delete_conversation(self):
         """Xóa hội thoại được chọn."""
         selection = self.conversation_listbox.curselection()
