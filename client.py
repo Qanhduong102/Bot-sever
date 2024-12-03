@@ -144,18 +144,18 @@ class ChatClient:
             # Lưu lại cuộc hội thoại hiện tại vào danh sách các cuộc hội thoại
             self.conversations.append(self.current_conversation)
 
-        # Tính số cuộc hội thoại mới từ danh sách hiện có
-        conversation_number = len(self.conversations) + 1  # Tính số cuộc hội thoại
+        # Tạo tên cuộc hội thoại mới
+        conversation_name = f"Conversation {len(self.conversations) + 1}"
 
         # Cập nhật danh sách cuộc hội thoại trong khung bên trái mà không xóa các cuộc hội thoại cũ
-        self.conversation_listbox.insert(tk.END, f"Conversation {conversation_number}")
+        self.conversation_listbox.insert(tk.END, conversation_name)
 
         # Tạo cuộc hội thoại mới
-        self.current_conversation = []
+        self.current_conversation = []  # Xóa danh sách cuộc hội thoại hiện tại
 
         # Cập nhật giao diện: Xóa lịch sử hội thoại hiện tại và thông báo người dùng
         self.chat_area.config(state='normal')
-        self.chat_area.delete("1.0", tk.END)
+        self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
         self.chat_area.insert(tk.END, "New conversation started. How can I assist you?\n")
         self.chat_area.config(state='disabled')
 
@@ -168,7 +168,6 @@ class ChatClient:
         self.disconnect_from_server()  # Ngắt kết nối trước nếu đang kết nối
         self.connect_to_server()  # Kết nối lại cho cuộc hội thoại mới
 
-
     def delete_conversation(self):
         """Xử lý xóa hội thoại hiện tại."""
         if self.conversations:
@@ -176,26 +175,20 @@ class ChatClient:
             self.conversations.pop()
 
             # Cập nhật lại danh sách các cuộc hội thoại trên giao diện
-            self.conversation_listbox.delete(tk.END)
+            self.conversation_listbox.delete(tk.END)  # Xóa cuộc hội thoại đã xóa
 
-            # Xóa toàn bộ lịch sử hội thoại trên giao diện
+            # Cập nhật nội dung hội thoại trên giao diện
             self.chat_area.config(state='normal')
-            self.chat_area.delete("1.0", tk.END)
+            self.chat_area.delete("1.0", tk.END)  # Xóa nội dung hiện tại
             self.chat_area.insert(tk.END, "Conversation deleted.\n")
             self.chat_area.config(state='disabled')
 
-    def display_conversation(self, conversation_index):
-        """Hiển thị nội dung của cuộc hội thoại cũ."""
-        self.chat_area.config(state='normal')
-        self.chat_area.delete("1.0", tk.END)
-
-        # Kiểm tra xem conversation_index có hợp lệ không
-        if 0 <= conversation_index < len(self.conversations):
-            conversation = self.conversations[conversation_index]
-            for message in conversation:
-                self.chat_area.insert(tk.END, message + "\n")
-
-        self.chat_area.config(state='disabled')
+            # Nếu không còn cuộc hội thoại nào, khôi phục lại giao diện như lúc ban đầu
+        if not self.conversations:
+            self.chat_area.config(state='normal')
+            self.chat_area.delete("1.0", tk.END)
+            self.chat_area.insert(tk.END, "No conversations available.\n")
+            self.chat_area.config(state='disabled')
 
     def on_conversation_select(self, event):
         """Xử lý khi người dùng chọn cuộc hội thoại trong danh sách."""
