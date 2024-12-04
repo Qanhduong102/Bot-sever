@@ -126,21 +126,21 @@ def get_location():
 # Mở YouTube
 def open_youtube():
     url = "https://www.youtube.com"
-    webbrowser.open(url)
-    return "Opening YouTube..."
+    webbrowser.open(url)  # Mở URL trong trình duyệt
+    return f"Opening YouTube: {url}"
 
 # Mở Facebook
 def open_facebook():
     url = "https://www.facebook.com"
-    webbrowser.open(url)
-    return "Opening Facebook..."
+    webbrowser.open(url)  # Mở URL trong trình duyệt
+    return f"Opening Facebook: {url}"
 
 # Tìm kiếm thông tin trên Google
 def search_google(query):
     base_url = "https://www.google.com/search?q="
     search_url = base_url + '+'.join(query.split())
-    webbrowser.open(search_url)
-    return f"Searching Google for '{query}'..."
+    webbrowser.open(search_url)  # Mở URL tìm kiếm trong trình duyệt
+    return f"Searching Google for '{query}': {search_url}"
 
 @app.route("/", methods=["GET"])
 def home():
