@@ -89,6 +89,12 @@ class ChatApp:
             relief="flat", cursor="hand2", width=25, height=2, wraplength=250
         ).pack(pady=(10, 20))
 
+        tk.Button(
+            self.login_frame, text="Quên mật khẩu?", command=self.forgot_password,
+            bg="#FF5733", fg="white", font=("Arial", 12, "bold"),
+            relief="flat", cursor="hand2", width=20, height=2
+        ).pack(pady=(10, 20))
+
     def create_register_frame(self):
         if self.login_frame:
             self.login_frame.destroy()
