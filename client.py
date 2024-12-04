@@ -28,12 +28,14 @@ class ChatClient:
         self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
         self.current_conversation = []  # Cuộc hội thoại hiện tại
         self.is_connected = False  # Biến theo dõi kết nối
+        self.current_conversation_index = None  # Ban đầu không có cuộc hội thoại nào được chọn
         self.chat_area = scrolledtext.ScrolledText(
             root, wrap=tk.WORD, state='disabled', height=20, width=60,
             bg='#2c2c3e', fg="#f0f0f0", font=('Roboto', 12),
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
         self.chat_area.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        self.conversation_listbox.bind("<<ListboxSelect>>", self.on_conversation_select)
 
         # Tiêu đề
         self.header = tk.Label(
@@ -151,27 +153,28 @@ class ChatClient:
         return next_number
 
     def new_conversation(self):
-        """Tạo cuộc hội thoại mới và lưu đoạn hội thoại hiện tại."""
+        """Tạo cuộc hội thoại mới và làm mới nội dung khung chat."""
         # Lấy số thứ tự cuộc hội thoại tiếp theo
         next_conversation_number = self.get_next_conversation_number()
 
-        # Nếu có cuộc hội thoại hiện tại, lưu vào danh sách
-        if self.current_conversation:
-            self.conversations.append(self.current_conversation)
+        # Nếu có cuộc hội thoại hiện tại, lưu nội dung vào danh sách
+        if self.current_conversation_index is not None:
+            self.conversations[self.current_conversation_index] = self.chat_area.get("1.0", tk.END).strip().split("\n")
 
-        # Tạo tên cuộc hội thoại mới
+        # Tạo cuộc hội thoại mới
         conversation_name = f"Conversation {next_conversation_number}"
-        self.conversations.append([])  # Thêm cuộc hội thoại mới vào danh sách
+        self.conversations.append([])  # Thêm một danh sách trống cho cuộc hội thoại mới
         self.conversation_listbox.insert(tk.END, conversation_name)  # Hiển thị trong Listbox
 
-        # Tạo đoạn hội thoại mới
-        self.current_conversation = []  # Làm mới nội dung hiện tại
+        # Chuyển sang cuộc hội thoại mới
+        self.current_conversation_index = len(self.conversations) - 1
 
-        # Cập nhật giao diện khung chat
+        # Làm mới khung chat
         self.chat_area.config(state='normal')
         self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
         self.chat_area.insert(tk.END, "🆕 New conversation started. How can I assist you?\n")
         self.chat_area.config(state='disabled')  # Không cho chỉnh sửa trực tiếp
+        self.chat_area.yview(tk.END)  # Cuộn xuống cuối cùng
 
         # Giữ kết nối server (nếu bị ngắt, thì kết nối lại)
         if not self.is_connected:
@@ -186,31 +189,30 @@ class ChatClient:
     def delete_conversation(self):
         """Xóa cuộc hội thoại đã chọn khỏi Listbox và danh sách."""
         try:
-            # Lấy chỉ mục cuộc hội thoại được chọn
             selected_index = self.conversation_listbox.curselection()
             if not selected_index:
                 return  # Không có cuộc hội thoại nào được chọn
 
             selected_index = selected_index[0]
-            # Lấy tên cuộc hội thoại và số thứ tự
-            conversation_name = self.conversation_listbox.get(selected_index)
-            conversation_number = int(conversation_name.split()[1])
 
             # Xóa cuộc hội thoại khỏi danh sách
-            self.conversations.pop(selected_index)
-
-            # Cập nhật lại Listbox
+            del self.conversations[selected_index]
             self.conversation_listbox.delete(selected_index)
 
-            # Nếu tất cả các cuộc hội thoại đã bị xóa, đặt lại đếm
+            # Cập nhật chỉ mục cuộc hội thoại hiện tại
             if len(self.conversations) == 0:
-                self.conversation_count = 0
-
-            # Cập nhật số thứ tự cuộc hội thoại sau khi xóa
-            self.refresh_conversations()
+                self.current_conversation_index = None  # Không còn cuộc hội thoại nào
+                self.chat_area.config(state='normal')
+                self.chat_area.delete("1.0", tk.END)  # Làm trống khung chat
+                self.chat_area.config(state='disabled')
+            else:
+                # Chuyển sang cuộc hội thoại đầu tiên trong danh sách (nếu còn)
+                self.current_conversation_index = 0
+                self.on_conversation_select(None)
 
         except Exception as e:
             print(f"Error deleting conversation: {e}")
+
     def refresh_conversations(self):
         """Cập nhật lại danh sách các cuộc hội thoại trong Listbox."""
         self.conversation_listbox.delete(0, tk.END)  # Xóa hết các mục cũ
@@ -235,11 +237,30 @@ class ChatClient:
             self.chat_area.config(state='disabled')
 
     def on_conversation_select(self, event):
-        """Xử lý khi người dùng chọn cuộc hội thoại trong danh sách."""
-        selection = self.conversation_listbox.curselection()
-        if selection:
-            conversation_index = selection[0]  # Lấy index của cuộc hội thoại được chọn
-            self.display_conversation(conversation_index)  # Hiển thị cuộc hội thoại đó
+        """Xử lý khi người dùng chọn một cuộc hội thoại từ Listbox."""
+        # Lấy chỉ mục cuộc hội thoại được chọn
+        selected_index = self.conversation_listbox.curselection()
+        if not selected_index:
+            return  # Không có cuộc hội thoại nào được chọn
+
+        selected_index = selected_index[0]
+
+        # Lưu nội dung cuộc hội thoại hiện tại trước khi chuyển
+        if self.current_conversation_index is not None:
+            self.conversations[self.current_conversation_index] = self.chat_area.get("1.0", tk.END).strip().split("\n")
+
+        # Cập nhật chỉ mục cuộc hội thoại hiện tại
+        self.current_conversation_index = selected_index
+
+        # Làm mới khung chat với nội dung của cuộc hội thoại được chọn
+        self.chat_area.config(state='normal')
+        self.chat_area.delete("1.0", tk.END)  # Xóa nội dung cũ
+        conversation_content = self.conversations[self.current_conversation_index]
+        for line in conversation_content:
+            self.chat_area.insert(tk.END, line + "\n")
+        self.chat_area.config(state='disabled')  # Không cho chỉnh sửa trực tiếp
+        self.chat_area.yview(tk.END)  # Cuộn xuống cuối cùng
+
 
     def connect_to_server(self):
         """Kết nối tới server (giả sử là server chat)."""
