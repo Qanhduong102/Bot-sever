@@ -37,14 +37,6 @@ class ChatClient:
         )
         self.chat_area.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
-        # Tiêu đề
-        self.header = tk.Label(
-            root, text="🎨 Voice-Chat Bot 🎤",
-            font=("Montserrat", 16, "bold"),
-            fg="#ffffff", bg="#1e1e2f"
-        )
-        self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0), sticky="ew")
-
         # Tải ảnh avatar
         avatar_image = Image.open("avatar.png")  # Đường dẫn đến ảnh avatar
         avatar_image = avatar_image.resize((50, 50), Image.Resampling.LANCZOS)  # Resize ảnh
@@ -52,9 +44,17 @@ class ChatClient:
 
         # Tạo widget Label hiển thị avatar
         self.avatar_label = tk.Label(
-            self.left_panel, image=self.avatar_photo, bg="#2c2c3e"
-        )
-        self.avatar_label.pack(pady=(10, 0), padx=10, anchor="nw")  # Đặt ở góc trên trái
+            root, image=self.avatar_photo, bg="#1e1e2f"
+    )
+        self.avatar_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")  # Đặt ở góc trái trên cùng
+
+        # Tiêu đề (đẩy sang bên cạnh avatar)
+        self.header = tk.Label(
+        root, text="🎨 Voice-Chat Bot 🎤",
+        font=("Montserrat", 16, "bold"),
+        fg="#ffffff", bg="#1e1e2f"
+    )
+        self.header.grid(row=0, column=1, pady=(10, 0), sticky="w")  # Dịch sang bên phải
 
         # Khung bên trái cho các nút quản lý hội thoại
         self.left_panel = tk.Frame(
