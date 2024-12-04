@@ -15,7 +15,7 @@ import socketio
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Địa chỉ server WebSocket
-SERVER_URL = "https://bot-sever-lhlx.onrender.com"
+SERVER_URL = "https://bot-sever-1-m5e4.onrender.com"
 
 # Tạo client WebSocket
 sio = socketio.Client()
