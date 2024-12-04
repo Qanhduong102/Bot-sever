@@ -18,11 +18,11 @@ def search_google(query):
     client = GoogleSearch({"api_key": serp_api_key})
     params = {
         "q": query,
-        "location": "Potland",
+        "location": "Vietnam",
     }
     try:
-        results = client.get_dict(params)
-        print("Search results:", results)  # Thêm print để kiểm tra kết quả trả về
+        results = client.get_dict(params)  # Thay đổi: Chỉ cần truyền 1 đối số là params
+        print("Search results:", results)  # Debug để kiểm tra kết quả trả về
         if "organic_results" in results:
             results_list = results["organic_results"]
             if results_list:
