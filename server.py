@@ -5,27 +5,19 @@ import requests
 from flask import Flask
 from flask_socketio import SocketIO, send
 from geopy.geocoders import Nominatim
-from google_search_results import GoogleSearchResults
-
-# Khởi tạo Nominatim geolocator
-geolocator = Nominatim(user_agent="geoapiExercises")
-
-# Khởi tạo SerpApi với API Key của bạn
-serp_api_key = 'b6c0374ee5d29803ecfe95c2dfc11c88b922dd81ae0afb93de40f87d7c08795e'  # Đặt key của bạn ở đây
+from serpapi import GoogleSearch
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
 socketio = SocketIO(app)
-
-# Khởi tạo Nominatim geolocator
-geolocator = Nominatim(user_agent="geoapiExercises")
-
-# Hàm tìm kiếm thông tin trên Google
+# Thêm dòng này để định nghĩa serp_api_key
+serp_api_key = "Yb6c0374ee5d29803ecfe95c2dfc11c88b922dd81ae0afb93de40f87d7c08795e"
+# Thay đổi hàm tìm kiếm Google
 def search_google(query):
-    client = GoogleSearchResults(serp_api_key)
+    client = GoogleSearch({"api_key": serp_api_key})
     params = {
         "q": query,
-        "location": "Vietnam",  # Tùy chọn: thay đổi địa điểm nếu cần
+        "location": "Vietnam",
     }
     try:
         results = client.get_dict(params)
