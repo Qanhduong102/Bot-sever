@@ -15,7 +15,7 @@ import sympy as sp
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
 socketio = SocketIO(app)
-   
+
 # Hàm lấy ngày hôm nay
 def get_date():
     today = datetime.date.today()
@@ -60,25 +60,31 @@ def get_news():
 
 # Dịch ngôn ngữ
 def translate_text(msg, target_language="vi"):
-    translator = Translator()
-    translated = translator.translate(msg, dest=target_language)
-    return translated.text
+    try:
+        translator = Translator()
+        translated = translator.translate(msg, dest=target_language)
+        return translated.text
+    except Exception as e:
+        return f"Translation error: {e}"
 
 # Nhắc nhở công việc
 reminders = []
 
 def set_reminder(reminder_msg, reminder_time):
     reminders.append({"msg": reminder_msg, "time": reminder_time})
-    Thread(target=check_reminders).start()
 
+# Kiểm tra nhắc nhở mỗi phút trong một luồng riêng
 def check_reminders():
     while True:
         current_time = datetime.datetime.now().strftime("%H:%M")
-        for reminder in reminders:
+        for reminder in reminders[:]:
             if reminder["time"] == current_time:
                 send(f"Nhắc nhở: {reminder['msg']}")
                 reminders.remove(reminder)
         time.sleep(60)  # Kiểm tra mỗi phút
+
+# Khởi tạo một luồng để kiểm tra nhắc nhở
+Thread(target=check_reminders, daemon=True).start()
 
 # Câu hỏi đố vui
 trivia_questions = [
@@ -188,106 +194,41 @@ def give_quote(msg):
     else:
         return "I don't feel like giving a quote right now."
 
-# Lấy vị trí người dùng từ địa chỉ IP
-def get_location():
-    try:
-        response = requests.get('http://ip-api.com/json/')
-        data = response.json()
-        if data['status'] == 'fail':
-            return "Unable to get your location."
-        
-        city = data.get('city', 'Unknown')
-        country = data.get('country', 'Unknown')
-        return f"Your location is {city}, {country}."
-    except requests.exceptions.RequestException as e:
-        return f"Error fetching location: {e}"
-
-@app.route("/", methods=["GET"])
-def home():
-    return "WebSocket Server is running!"
-
 @socketio.on('message')
 def handle_message(msg):
-    print(f"Message from client: {msg}")
-    
-    # Kiểm tra các câu hỏi cụ thể
-    if "what is space" in msg.lower():
-        response = "Space is the vast, seemingly infinite expanse that exists beyond the Earth and its atmosphere. It is where all the stars, planets, and galaxies exist."
-    
-    # Các câu hỏi về thời gian
-    elif "what's the time" in msg.lower() or "current time" in msg.lower():
+    print(f"Received message: {msg}")
+    if 'time' in msg.lower():
         response = get_time()
-    
-    # Thời tiết
-    elif "weather" in msg.lower():
-        response = get_weather()
-    
-    # Tin tức
-    elif "news" in msg.lower():
-        response = get_news()
-    
-    # Ngày hiện tại
-    elif "today's date" in msg.lower() or "what's the date" in msg.lower():
+    elif 'date' in msg.lower():
         response = get_date()
-    
-    # Câu hỏi về bot
-    elif "who are you" in msg.lower():
-        response = about_bot()
-    
-    # Vị trí người dùng
-    elif "location" in msg.lower():
-        response = get_location()
-    
-    # Dịch ngôn ngữ
-    elif "translate" in msg.lower():
+    elif 'weather' in msg.lower():
+        response = get_weather()
+    elif 'translate' in msg.lower():
         response = translate_text(msg)
-    
-    # Nhắc nhở
-    elif "reminder" in msg.lower():
-        response = set_reminder(msg)
-    
-    # Đố vui
-    elif "joke" in msg.lower():
-        response = tell_joke(msg)
-    
-    # Trích dẫn
-    elif "quote" in msg.lower():
-        response = give_quote(msg)
-    
-    # Phân tích cảm xúc
-    elif "mood" in msg.lower():
-        response = detect_sentiment(msg)
-    
-    # Câu hỏi đố vui
-    elif "trivia" in msg.lower():
+    elif 'news' in msg.lower():
+        response = get_news()
+    elif 'reminder' in msg.lower():
+        response = "Reminder set successfully!"
+    elif 'trivia' in msg.lower():
         response = trivia_quiz(msg)
-    
-    # Tìm kiếm thông tin trên Wikipedia
-    elif "search" in msg.lower():
+    elif 'wikipedia' in msg.lower():
         response = search_wikipedia(msg)
-    
-    # Tính toán
-    elif "calculate" in msg.lower():
+    elif 'sentiment' in msg.lower():
+        response = detect_sentiment(msg)
+    elif 'calculate' in msg.lower():
         response = calculate(msg)
-    
-    # Câu hỏi khác hoặc chào
-    elif "hello" in msg.lower() or "hi" in msg.lower():
-        response = greet()
-    
-    # Tạm biệt
-    elif "goodbye" in msg.lower() or "bye" in msg.lower():
-        response = "Goodbye! Have a great day!"
-    
-    # Giới thiệu về các tính năng
-    elif "help" in msg.lower():
+    elif 'mood' in msg.lower():
+        response = ask_about_mood()
+    elif 'features' in msg.lower():
         response = tell_features()
-    
-    # Nếu không nhận diện được lệnh
+    elif 'joke' in msg.lower():
+        response = tell_joke(msg)
+    elif 'quote' in msg.lower():
+        response = give_quote(msg)
     else:
-        response = f"Tôi không hiểu câu hỏi. Bạn có thể hỏi tôi về thời gian, thời tiết, tin tức, hoặc nhắc nhở."
-
+        response = "I'm sorry, I didn't understand that."
+    
     send(response)
 
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 12345))  # PORT sẽ được Render cấp tự động
-    socketio.run(app, host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    socketio.run(app, host="0.0.0.0", port=5000)
