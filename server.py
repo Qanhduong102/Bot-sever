@@ -123,23 +123,20 @@ def get_location():
         return f"Your location is {city}, {country}."
     except requests.exceptions.RequestException as e:
         return f"Error fetching location: {e}"
-# Mở YouTube
 def open_youtube():
     url = "https://www.youtube.com"
-    webbrowser.open(url)  # Mở URL trong trình duyệt
+    os.system(f"start {url}")  # Sử dụng lệnh "start" trên Windows
     return f"Opening YouTube: {url}"
 
-# Mở Facebook
 def open_facebook():
     url = "https://www.facebook.com"
-    webbrowser.open(url)  # Mở URL trong trình duyệt
+    os.system(f"start {url}")  # Sử dụng lệnh "start" trên Windows
     return f"Opening Facebook: {url}"
 
-# Tìm kiếm thông tin trên Google
 def search_google(query):
     base_url = "https://www.google.com/search?q="
     search_url = base_url + '+'.join(query.split())
-    webbrowser.open(search_url)  # Mở URL tìm kiếm trong trình duyệt
+    os.system(f"start {search_url}")  # Sử dụng lệnh "start" trên Windows
     return f"Searching Google for '{query}': {search_url}"
 
 @app.route("/", methods=["GET"])
