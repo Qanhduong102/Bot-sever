@@ -327,7 +327,7 @@ class ChatClient:
             webbrowser.open("https://www.facebook.com", new=2)
 
     # Kết nối tới server
-    sio.connect('http://127.0.0.1:12345')
+    sio.connect('https://bot-sever-aice.onrender.com')
 
     # Gửi yêu cầu tới server
     sio.send("open youtube")    
