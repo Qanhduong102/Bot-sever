@@ -93,12 +93,6 @@ class ChatApp:
             relief="flat", cursor="hand2", width=25, height=2, wraplength=250
         ).pack(pady=(10, 20))
 
-        tk.Button(
-            self.login_frame, text="Quên mật khẩu?", command=self.forgot_password,
-            bg="#FF5733", fg="white", font=("Arial", 12, "bold"),
-            relief="flat", cursor="hand2", width=20, height=2
-        ).pack(pady=(10, 20))
-
     def create_register_frame(self):
         if self.login_frame:
             self.login_frame.destroy()
@@ -233,31 +227,6 @@ class ChatApp:
         else:
             conn.close()
             messagebox.showerror("Lỗi", "Email không tồn tại trong hệ thống!")
-
-    def send_reset_email(self, recipient_email, temp_password):
-        sender_email = "autochatbot40@gmail.com"
-        sender_password = "zlji ftme fhcc zlzg"  # Bạn cần đăng ký tài khoản email và cấp quyền gửi email
-
-        subject = "Mật khẩu mới của bạn"
-        body = f"Chào bạn,\n\nMật khẩu mới của bạn là: {temp_password}\n\nVui lòng thay đổi mật khẩu sau khi đăng nhập!"
-
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = recipient_email
-        msg['Subject'] = subject
-
-        msg.attach(MIMEText(body, 'plain'))
-
-        try:
-            with smtplib.SMTP('smtp.gmail.com', 587) as server:
-                server.starttls()
-                server.login(sender_email, sender_password)
-                text = msg.as_string()
-                server.sendmail(sender_email, recipient_email, text)
-            print("Email sent successfully")
-        except Exception as e:
-            print(f"Error sending email: {e}")
-            messagebox.showerror("Lỗi", "Không thể gửi email! Vui lòng thử lại sau.")
 
     def create_chat_frame(self):
         if self.login_frame:
