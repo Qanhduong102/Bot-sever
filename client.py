@@ -45,6 +45,17 @@ class ChatClient:
         )
         self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0), sticky="ew")
 
+        # Tải ảnh avatar
+        avatar_image = Image.open("avatar.png")  # Đường dẫn đến ảnh avatar
+        avatar_image = avatar_image.resize((50, 50), Image.Resampling.LANCZOS)  # Resize ảnh
+        self.avatar_photo = ImageTk.PhotoImage(avatar_image)
+
+        # Tạo widget Label hiển thị avatar
+        self.avatar_label = tk.Label(
+            self.left_panel, image=self.avatar_photo, bg="#2c2c3e"
+        )
+        self.avatar_label.pack(pady=(10, 0), padx=10, anchor="nw")  # Đặt ở góc trên trái
+
         # Khung bên trái cho các nút quản lý hội thoại
         self.left_panel = tk.Frame(
             root, width=150, bg="#2c2c3e", highlightthickness=1, highlightbackground="#4CAF50"
@@ -136,17 +147,6 @@ class ChatClient:
         self.current_conversation = []
 
         self.connect_to_server()
-
-        # Tải ảnh avatar
-        avatar_image = Image.open("avatar.png")  # Đường dẫn đến ảnh avatar
-        avatar_image = avatar_image.resize((50, 50), Image.Resampling.LANCZOS)  # Resize ảnh
-        self.avatar_photo = ImageTk.PhotoImage(avatar_image)
-
-        # Tạo widget Label hiển thị avatar
-        self.avatar_label = tk.Label(
-            self.left_panel, image=self.avatar_photo, bg="#2c2c3e"
-        )
-        self.avatar_label.pack(pady=(10, 0), padx=10, anchor="nw")  # Đặt ở góc trên trái
 
     def center_window(self, width, height):
         screen_width = self.root.winfo_screenwidth()
