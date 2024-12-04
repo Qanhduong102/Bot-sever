@@ -53,11 +53,34 @@ def get_news():
         return f"Error fetching news: {e}"
 
 def greet():
-    return "Hello! How can I help you today?"
+    greetings = ["Hello! How can I help you today?", "Hi there! How are you doing?", "Hey! What can I do for you today?"]
+    return random.choice(greetings)
 
 def ask_about_mood():
-    moods = ["I'm feeling great!", "I'm always happy to help!", "I'm just a bot, but I'm doing fine."]
+    moods = ["I'm feeling great!", "I'm always happy to help!", "I'm just a bot, but I'm doing fine.", "I'm doing well, thanks for asking! How about you?"]
     return random.choice(moods)
+def offer_help():
+    return "Is there anything specific I can help you with today? I can assist with time, weather, news, and more!"
+def chat():
+    responses = [
+        "I love chatting with you! What's on your mind?", 
+        "Let's talk! What would you like to chat about?",
+        "I’m here for a chat! What’s up?",
+        "So, what’s your favorite hobby?"
+    ]
+    return random.choice(responses)
+user_name = ""
+
+def ask_name():
+    global user_name
+    if not user_name:
+        return "By the way, what should I call you?"
+    return f"Hey {user_name}, how’s it going?"
+
+def set_name(name):
+    global user_name
+    user_name = name
+    return f"Nice to meet you, {user_name}! I’ll call you that from now on."
 
 def about_bot():
     return "I'm a chatbot designed to assist you with information, time, weather, and more. How can I help you?"
@@ -83,29 +106,47 @@ jokes = [
         "answer": "She looked surprised."
     }
 ]
-
 def tell_joke(msg):
-    # Kiểm tra nếu người dùng đã yêu cầu câu chuyện hài
     if "tell me a joke" in msg.lower():
         joke = random.choice(jokes)
-        return joke["question"]  # Trả về câu hỏi của joke
+        return joke["question"]  # Returns the question of the joke
     elif "why" in msg.lower():
-        # Khi người dùng hỏi "why", bot sẽ trả lời
         return random.choice(jokes)["answer"]
     else:
-        return "Say 'tell me a joke' to hear a joke, and 'why' to hear the answer."
+        return "Say 'tell me a joke' to hear a joke!"
 
 def give_quote(msg):
-    # Thêm điều kiện random để có thể trả lời quote hay không
     if random.choice([True, False]):
         quotes = [
             "The only way to do great work is to love what you do. – Steve Jobs",
             "In the middle of every difficulty lies opportunity. – Albert Einstein",
-            "Life is what happens when you’re busy making other plans. – John Lennon"
+            "Life is what happens when you’re busy making other plans. – John Lennon",
+            "The best way to predict the future is to create it. – Abraham Lincoln",
+            "Success is not final, failure is not fatal: It is the courage to continue that counts. – Winston Churchill"
         ]
         return random.choice(quotes)
+    return "I don't feel like giving a quote right now."
+def small_talk(msg):
+    if "how's your day" in msg.lower():
+        return "My day’s going great, thanks for asking! How about yours?"
+    elif "what did you do today" in msg.lower():
+        return "I’ve been chatting with wonderful people like you! What about you?"
+    elif "how are you" in msg.lower():
+        return ask_about_mood()  # This can use the existing function for mood
     else:
-        return "I don't feel like giving a quote right now."
+        return chat()  # Default casual conversation
+def about_bot():
+    return "I’m a chatbot created to make your day a little easier. I can help you with the time, weather, news, tell jokes, and more! Anything you need assistance with?"
+
+def what_can_you_do():
+    return "I can help you with time, weather updates, news headlines, tell jokes, give quotes, and much more. Just ask!"
+def bot_personality(msg):
+    if "thank you" in msg.lower():
+        return "You're welcome! Always happy to help 😊"
+    elif "goodbye" in msg.lower():
+        return "Goodbye! It was great talking to you! Come back soon!"
+    else:
+        return "I’m here whenever you need me!"
 
 # Lấy vị trí người dùng từ địa chỉ IP
 def get_location():
@@ -128,7 +169,6 @@ def home():
 @socketio.on('message')
 def handle_message(msg):
     print(f"Message from client: {msg}")
-    # Kiểm tra yêu cầu của client
     if "what's the time" in msg.lower() or "current time" in msg.lower():
         response = get_time()
     elif "weather" in msg.lower():
@@ -156,10 +196,22 @@ def handle_message(msg):
         response = tell_features()
     elif "location" in msg.lower():
         response = get_location()
+    elif "how's your day" in msg.lower():
+        response = small_talk(msg)
+    elif "what did you do today" in msg.lower():
+        response = small_talk(msg)
+    elif "thank you" in msg.lower():
+        response = bot_personality(msg)
+    elif "goodbye" in msg.lower():
+        response = bot_personality(msg)
+    elif "my name is" in msg.lower():
+        name = msg.lower().split("my name is")[-1].strip()
+        response = set_name(name)
     else:
         response = f"{msg}"
 
     send(response)
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 12345))  # PORT sẽ được Render cấp tự động
