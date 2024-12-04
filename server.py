@@ -31,7 +31,7 @@ def get_specific_day_time(date_str):
 
 # Thay đổi hàm get_weather để sử dụng OpenWeather API
 def get_weather():
-    api_key = "YOUR_API_KEY"  # Thay bằng API Key của bạn
+    api_key = "58e915fd5512001ac90dfdde93093371"  # Thay bằng API Key của bạn
     city = "Hanoi"  # Bạn có thể thay đổi thành tên thành phố bạn muốn lấy thông tin thời tiết
 
     # Tạo URL yêu cầu thời tiết
