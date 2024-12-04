@@ -311,27 +311,7 @@ class ChatClient:
         except Exception as e:
             print(f": {e}")
             self.display_message(f"{e}")
-    # Kết nối tới server
-    sio = socketio.Client()
-
-    @sio.event
-    def connect():
-        print('Connected to the server')
-
-    @sio.event
-    def message(data):
-        print(f"Received message: {data}")
-        if "open youtube" in data.lower():
-            webbrowser.open("https://www.youtube.com", new=2)
-        elif "open facebook" in data.lower():
-            webbrowser.open("https://www.facebook.com", new=2)
-
-    # Kết nối tới server
-    sio.connect('https://bot-sever-aice.onrender.com')
-
-    # Gửi yêu cầu tới server
-    sio.send("open youtube")    
-
+            
     def send_message(self):
         self.tts_enabled = False  # Tắt TTS khi gửi tin nhắn qua entry
         user_message = self.entry.get()
