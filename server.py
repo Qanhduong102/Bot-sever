@@ -14,6 +14,7 @@ socketio = SocketIO(app)
 # Thêm dòng này để định nghĩa serp_api_key
 serp_api_key = "Yb6c0374ee5d29803ecfe95c2dfc11c88b922dd81ae0afb93de40f87d7c08795e"
 
+# Thay đổi hàm tìm kiếm Google
 def search_google(query):
     client = GoogleSearch({"api_key": serp_api_key})
     params = {
@@ -21,8 +22,7 @@ def search_google(query):
         "location": "Vietnam",
     }
     try:
-        results = client.get_dict(params)  # Thay đổi: Chỉ cần truyền 1 đối số là params
-        print("Search results:", results)  # Debug để kiểm tra kết quả trả về
+        results = client.get_dict(params)
         if "organic_results" in results:
             results_list = results["organic_results"]
             if results_list:
