@@ -29,37 +29,12 @@ def get_specific_day_time(date_str):
     except ValueError:
         return "Invalid date format. Please use YYYY-MM-DD."
 
-# Thay đổi hàm get_weather để sử dụng OpenWeather API
+# Dự báo thời tiết giả lập
 def get_weather():
-    api_key = "58e915fd5512001ac90dfdde93093371"  # Thay bằng API Key của bạn
-    city = "Hanoi"  # Bạn có thể thay đổi thành tên thành phố bạn muốn lấy thông tin thời tiết
-
-    # Tạo URL yêu cầu thời tiết
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    complete_url = f"{base_url}q={city}&appid={api_key}&units=metric&lang=vi"  # units=metric để lấy nhiệt độ theo độ C, lang=vi để hiển thị tiếng Việt
-
-    try:
-        response = requests.get(complete_url, timeout=10)
-        response.raise_for_status()  # Tăng cường việc kiểm tra trạng thái HTTP
-        data = response.json()
-
-        if data.get('cod') != 200:  # Kiểm tra lỗi trả về từ API
-            return f"Error fetching weather data: {data.get('message', 'Unknown error')}"
-        
-        # Lấy thông tin thời tiết từ phản hồi
-        main = data['main']
-        weather = data['weather'][0]
-
-        temperature = main['temp']
-        description = weather['description']
-        city_name = data['name']
-        country_name = data['sys']['country']
-
-        # Trả về thông tin thời tiết
-        return f"The current weather in {city_name}, {country_name} is {description} with a temperature of {temperature}°C."
-
-    except requests.exceptions.RequestException as e:
-        return f"Error fetching weather data: {e}"
+    weather_conditions = ['sunny', 'cloudy', 'rainy', 'snowy', 'windy']
+    temperature = random.randint(15, 35)
+    condition = random.choice(weather_conditions)
+    return f"The weather is {condition} and {temperature} degrees Celsius."
 
 # Lấy tin tức
 def get_news():
@@ -77,13 +52,7 @@ def get_news():
             return "I'm unable to fetch the news right now."
     except requests.exceptions.RequestException as e:
         return f"Error fetching news: {e}"
-def tell_joke(msg):
-    jokes = [
-        "Why don’t skeletons fight each other? They don’t have the guts.",
-        "Why did the scarecrow win an award? Because he was outstanding in his field.",
-        "What do you call fake spaghetti? An impasta."
-    ]
-    return random.choice(jokes)
+
 def greet():
     return "Hello! How can I help you today?"
 
@@ -99,6 +68,30 @@ def ask_about_hobbies():
 
 def tell_features():
     return "I can tell you the time, weather, news, and even find out your location. I can also chat with you about various topics!"
+
+# Lưu trữ câu hỏi và câu trả lời của mỗi joke
+jokes = [
+    {
+        "question": "Why don’t skeletons fight each other?",
+        "answer": "They don’t have the guts."
+    },
+    {
+        "question": "Why did the scarecrow win an award?",
+        "answer": "Because he was outstanding in his field!"
+    },
+    {
+        "question": "I told my wife she was drawing her eyebrows too high.",
+        "answer": "She looked surprised."
+    }
+]
+
+def tell_joke(msg):
+    # Kiểm tra nếu người dùng yêu cầu câu chuyện hài
+    if "tell me a joke" in msg.lower():
+        joke = random.choice(jokes)  # Chọn ngẫu nhiên một câu chuyện hài
+        return f"{joke['question']} {joke['answer']}"  # Trả về câu hỏi và câu trả lời
+    else:
+        return "Say 'tell me a joke' to hear a joke."
 
 def give_quote(msg):
     # Thêm điều kiện random để có thể trả lời quote hay không
