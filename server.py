@@ -86,16 +86,16 @@ jokes = [
 ]
 
 def tell_joke(msg):
-    # Kiểm tra nếu người dùng đã yêu cầu câu chuyện hài
+    # Kiểm tra nếu người dùng yêu cầu câu chuyện hài
     if "tell me a joke" in msg.lower():
         joke = random.choice(jokes)
         return joke["question"]  # Trả về câu hỏi của joke
-    elif "why" in msg.lower():
-        # Khi người dùng hỏi "why", bot sẽ trả lời
-        return random.choice(jokes)["answer"]
+    elif "answer" in msg.lower():
+        # Nếu người dùng yêu cầu câu trả lời, tìm câu trả lời của joke đã hỏi
+        joke = random.choice(jokes)
+        return joke["answer"]  # Trả về câu trả lời của joke
     else:
-        return "Say 'tell me a joke' to hear a joke, and 'why' to hear the answer."
-
+        return "Say 'tell me a joke' to hear a joke or 'answer' to get the punchline."
 def give_quote(msg):
     # Thêm điều kiện random để có thể trả lời quote hay không
     if random.choice([True, False]):
