@@ -4,12 +4,11 @@ import requests
 
 SERVER_URL = "https://bot-sever-1-m5e4.onrender.com"  # Địa chỉ WebSocket server
 
-
 class ChatApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Đăng nhập/Đăng ký & Chatbot")
-        self.root.geometry("800x600")
+        self.root.geometry("800x600")  # Kích thước cửa sổ
         self.root.resizable(False, False)
 
         # Màu nền
@@ -216,5 +215,16 @@ class ChatApp:
 
 
 root = tk.Tk()
+
+# Tính toán vị trí cửa sổ ở giữa màn hình
+window_width = 800
+window_height = 600
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+position_top = int(screen_height / 2 - window_height / 2)
+position_left = int(screen_width / 2 - window_width / 2)
+
+root.geometry(f'{window_width}x{window_height}+{position_left}+{position_top}')
+
 app = ChatApp(root)
 root.mainloop()
