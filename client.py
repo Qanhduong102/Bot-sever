@@ -8,8 +8,7 @@ import io
 import time
 import threading
 from PIL import Image, ImageTk
-import webbrowser
-from socketIO_client import SocketIO
+
 
 # Thiết lập mã hóa UTF-8 cho console
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -372,25 +371,7 @@ class ChatClient:
 
         typing_thread.start()
         tts_thread.start()
-    # Kết nối với máy chủ
-    def on_message_received(*args):
-        message = args[0]
-    
-        if message == "open_youtube":
-            webbrowser.open("https://www.youtube.com", new=2)
-        elif message == "open_facebook":
-            webbrowser.open("https://www.facebook.com", new=2)
-        elif message.startswith("search_google"):
-            query = message.replace("search_google", "").strip()
-            search_url = f"https://www.google.com/search?q={query}"
-            webbrowser.open(search_url, new=2)
-        else:
-            print("Received message:", message)
 
-    # Kết nối với máy chủ WebSocket
-    with SocketIO('127.0.0.1', 12345) as socketIO:
-        socketIO.on('message', on_message_received)
-        socketIO.wait()  # Đợi sự kiện
     def close_connection(self):
         sio.disconnect()
 
