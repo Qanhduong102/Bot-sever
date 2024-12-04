@@ -54,7 +54,7 @@ class ChatClient:
         font=("Montserrat", 16, "bold"),
         fg="#ffffff", bg="#1e1e2f"
     )
-        self.header.grid(row=0, column=1, pady=(10, 0), sticky="w")  # Dịch sang bên phải
+        self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0), sticky="n")
 
         # Khung bên trái cho các nút quản lý hội thoại
         self.left_panel = tk.Frame(
