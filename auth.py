@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
-import requests
+import sqlite3
+import hashlib
 
-SERVER_URL = "https://bot-sever-1-m5e4.onrender.com"  # Địa chỉ WebSocket server
+DATABASE_NAME = "users.db"  # Tên cơ sở dữ liệu SQLite
 
 class ChatApp:
     def __init__(self, root):
@@ -17,6 +18,9 @@ class ChatApp:
         self.highlight_color = "#4CAF50"
         self.text_color = "#f0f0f0"
 
+        # Khởi tạo cơ sở dữ liệu
+        self.init_database()
+
         # Khởi tạo các frame
         self.login_frame = None
         self.register_frame = None
@@ -25,106 +29,110 @@ class ChatApp:
         # Hiển thị frame đăng nhập đầu tiên
         self.create_login_frame()
 
+    def init_database(self):
+        """Khởi tạo cơ sở dữ liệu SQLite."""
+        conn = sqlite3.connect(DATABASE_NAME)
+        cursor = conn.cursor()
+        # Tạo bảng nếu chưa tồn tại
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL
+            )
+        """)
+        conn.commit()
+        conn.close()
+
+    def hash_password(self, password):
+        """Hàm băm mật khẩu."""
+        return hashlib.sha256(password.encode()).hexdigest()
+
     def create_login_frame(self):
-        # Ẩn tất cả các frame hiện tại
         if self.register_frame:
             self.register_frame.destroy()
         if self.chat_frame:
             self.chat_frame.destroy()
 
-        # Tạo frame đăng nhập mới
         self.login_frame = tk.Frame(self.root, bg=self.panel_color)
         self.login_frame.pack(expand=True, fill="both")
 
-        # Tiêu đề
         tk.Label(
-            self.login_frame, text="Đăng nhập", font=("Arial", 20, "bold"),
+            self.login_frame, text="Đăng nhập", font=("Arial", 24, "bold"),
             bg=self.panel_color, fg=self.text_color
-        ).pack(pady=20)
+        ).pack(pady=(50, 20))  # Tăng khoảng cách phía trên
 
-        # Email
         tk.Label(
-            self.login_frame, text="Email:", font=("Arial", 12),
+            self.login_frame, text="Email:", font=("Arial", 14),
             bg=self.panel_color, fg=self.text_color
-        ).pack(anchor="w", padx=50)
-        self.email_entry = tk.Entry(self.login_frame, width=30, font=("Arial", 12))
-        self.email_entry.pack(padx=50, pady=5)
+        ).pack(anchor="w", padx=150, pady=(10, 5))  # Căn lề trái và khoảng cách nhỏ hơn
+        self.email_entry = tk.Entry(self.login_frame, width=40, font=("Arial", 14))
+        self.email_entry.pack(padx=150, pady=(0, 10))
 
-        # Mật khẩu
         tk.Label(
-            self.login_frame, text="Mật khẩu:", font=("Arial", 12),
+            self.login_frame, text="Mật khẩu:", font=("Arial", 14),
             bg=self.panel_color, fg=self.text_color
-        ).pack(anchor="w", padx=50)
-        self.password_entry = tk.Entry(self.login_frame, show="*", width=30, font=("Arial", 12))
-        self.password_entry.pack(padx=50, pady=5)
+        ).pack(anchor="w", padx=150, pady=(10, 5))
+        self.password_entry = tk.Entry(self.login_frame, show="*", width=40, font=("Arial", 14))
+        self.password_entry.pack(padx=150, pady=(0, 20))
 
-        # Nút đăng nhập
         tk.Button(
             self.login_frame, text="Đăng nhập", command=self.login,
-            bg=self.highlight_color, fg="white", font=("Arial", 12, "bold"),
-            relief="flat", cursor="hand2"
-        ).pack(pady=15)
+            bg=self.highlight_color, fg="white", font=("Arial", 14, "bold"),
+            relief="flat", cursor="hand2", width=20, height=2
+        ).pack(pady=(10, 20))
 
-        # Chuyển đến đăng ký
         tk.Button(
             self.login_frame, text="Chưa có tài khoản? Đăng ký", command=self.create_register_frame,
             bg="#6C63FF", fg="white", font=("Arial", 12, "bold"),
-            relief="flat", cursor="hand2"
-        ).pack()
+            relief="flat", cursor="hand2", width=25, height=2, wraplength=250
+        ).pack(pady=(10, 20))
 
     def create_register_frame(self):
-        # Ẩn tất cả các frame hiện tại
         if self.login_frame:
             self.login_frame.destroy()
         if self.chat_frame:
             self.chat_frame.destroy()
 
-        # Tạo frame đăng ký mới
         self.register_frame = tk.Frame(self.root, bg=self.panel_color)
         self.register_frame.pack(expand=True, fill="both")
 
-        # Tiêu đề
         tk.Label(
-            self.register_frame, text="Đăng ký", font=("Arial", 20, "bold"),
+            self.register_frame, text="Đăng ký", font=("Arial", 24, "bold"),
             bg=self.panel_color, fg=self.text_color
-        ).pack(pady=20)
+        ).pack(pady=(50, 20))
 
-        # Email
         tk.Label(
-            self.register_frame, text="Email:", font=("Arial", 12),
+            self.register_frame, text="Email:", font=("Arial", 14),
             bg=self.panel_color, fg=self.text_color
-        ).pack(anchor="w", padx=50)
-        self.reg_email_entry = tk.Entry(self.register_frame, width=30, font=("Arial", 12))
-        self.reg_email_entry.pack(padx=50, pady=5)
+        ).pack(anchor="w", padx=150, pady=(10, 5))
+        self.reg_email_entry = tk.Entry(self.register_frame, width=40, font=("Arial", 14))
+        self.reg_email_entry.pack(padx=150, pady=(0, 10))
 
-        # Mật khẩu
         tk.Label(
-            self.register_frame, text="Mật khẩu:", font=("Arial", 12),
+            self.register_frame, text="Mật khẩu:", font=("Arial", 14),
             bg=self.panel_color, fg=self.text_color
-        ).pack(anchor="w", padx=50)
-        self.reg_password_entry = tk.Entry(self.register_frame, show="*", width=30, font=("Arial", 12))
-        self.reg_password_entry.pack(padx=50, pady=5)
+        ).pack(anchor="w", padx=150, pady=(10, 5))
+        self.reg_password_entry = tk.Entry(self.register_frame, show="*", width=40, font=("Arial", 14))
+        self.reg_password_entry.pack(padx=150, pady=(0, 10))
 
-        # Xác nhận mật khẩu
         tk.Label(
-            self.register_frame, text="Xác nhận mật khẩu:", font=("Arial", 12),
+            self.register_frame, text="Xác nhận mật khẩu:", font=("Arial", 14),
             bg=self.panel_color, fg=self.text_color
-        ).pack(anchor="w", padx=50)
-        self.reg_confirm_entry = tk.Entry(self.register_frame, show="*", width=30, font=("Arial", 12))
-        self.reg_confirm_entry.pack(padx=50, pady=5)
+        ).pack(anchor="w", padx=150, pady=(10, 5))
+        self.reg_confirm_entry = tk.Entry(self.register_frame, show="*", width=40, font=("Arial", 14))
+        self.reg_confirm_entry.pack(padx=150, pady=(0, 20))
 
-        # Nút hoàn tất
         tk.Button(
             self.register_frame, text="Hoàn tất", command=self.register,
-            bg=self.highlight_color, fg="white", font=("Arial", 12, "bold"),
-            relief="flat", cursor="hand2"
-        ).pack(pady=15)
+            bg=self.highlight_color, fg="white", font=("Arial", 14, "bold"),
+            relief="flat", cursor="hand2", width=20, height=2
+        ).pack(pady=(10, 20))
 
-        # Quay lại
         tk.Button(
             self.register_frame, text="Quay lại", command=self.create_login_frame,
             bg="#6C63FF", fg="white", font=("Arial", 12, "bold"),
-            relief="flat", cursor="hand2"
+            relief="flat", cursor="hand2", width=20, height=2
         ).pack()
 
     def login(self):
@@ -135,16 +143,21 @@ class ChatApp:
             messagebox.showerror("Lỗi", "Vui lòng nhập đầy đủ thông tin!")
             return
 
-        # Gửi yêu cầu đăng nhập
-        try:
-            response = requests.post(f"{SERVER_URL}/login", json={"email": email, "password": password})
-            if response.status_code == 200:
-                messagebox.showinfo("Thành công", "Đăng nhập thành công!")
-                self.create_chat_frame()
-            else:
-                messagebox.showerror("Lỗi", response.json().get("message", "Đăng nhập thất bại!"))
-        except requests.exceptions.RequestException:
-            messagebox.showerror("Lỗi", "Không thể kết nối đến server!")
+        hashed_password = self.hash_password(password)
+
+        conn = sqlite3.connect(DATABASE_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, hashed_password))
+        user = cursor.fetchone()
+
+        conn.close()
+
+        if user:
+            messagebox.showinfo("Thành công", "Đăng nhập thành công!")
+            self.create_chat_frame()
+        else:
+            messagebox.showerror("Lỗi", "Thông tin đăng nhập không đúng!")
 
     def register(self):
         email = self.reg_email_entry.get()
@@ -159,16 +172,20 @@ class ChatApp:
             messagebox.showerror("Lỗi", "Mật khẩu xác nhận không khớp!")
             return
 
-        # Gửi yêu cầu đăng ký
+        hashed_password = self.hash_password(password)
+
+        conn = sqlite3.connect(DATABASE_NAME)
+        cursor = conn.cursor()
+
         try:
-            response = requests.post(f"{SERVER_URL}/register", json={"email": email, "password": password})
-            if response.status_code == 201:
-                messagebox.showinfo("Thành công", "Đăng ký thành công!")
-                self.create_login_frame()
-            else:
-                messagebox.showerror("Lỗi", response.json().get("message", "Đăng ký thất bại!"))
-        except requests.exceptions.RequestException:
-            messagebox.showerror("Lỗi", "Không thể kết nối đến server!")
+            cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, hashed_password))
+            conn.commit()
+            messagebox.showinfo("Thành công", "Đăng ký thành công!")
+            self.create_login_frame()
+        except sqlite3.IntegrityError:
+            messagebox.showerror("Lỗi", "Email đã tồn tại!")
+        finally:
+            conn.close()
 
     def create_chat_frame(self):
         if self.login_frame:
@@ -179,7 +196,6 @@ class ChatApp:
         self.chat_frame = tk.Frame(self.root, bg=self.bg_color)
         self.chat_frame.pack(expand=True, fill="both")
 
-        # Khung chat
         self.chat_area = scrolledtext.ScrolledText(
             self.chat_frame, wrap=tk.WORD, state='disabled',
             bg=self.panel_color, fg=self.text_color, font=("Arial", 12),
@@ -187,7 +203,6 @@ class ChatApp:
         )
         self.chat_area.pack(padx=10, pady=10, fill="both", expand=True)
 
-        # Khung nhập tin nhắn
         bottom_panel = tk.Frame(self.chat_frame, bg=self.bg_color)
         bottom_panel.pack(fill="x", padx=10, pady=10)
 
@@ -209,22 +224,27 @@ class ChatApp:
         if message:
             self.chat_area.config(state="normal")
             self.chat_area.insert("end", f"Bạn: {message}\n")
+            self.chat_area.yview("end")
             self.chat_area.config(state="disabled")
             self.entry.delete(0, "end")
-            # Xử lý gửi tin nhắn đến server hoặc AI tại đây
 
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ChatApp(root)
 
-root = tk.Tk()
+    # Lấy kích thước màn hình
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
 
-# Tính toán vị trí cửa sổ ở giữa màn hình
-window_width = 800
-window_height = 600
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-position_top = int(screen_height / 2 - window_height / 2)
-position_left = int(screen_width / 2 - window_width / 2)
+    # Kích thước cửa sổ
+    window_width = 800
+    window_height = 600
 
-root.geometry(f'{window_width}x{window_height}+{position_left}+{position_top}')
+    # Tính toán tọa độ x, y để căn giữa
+    x = (screen_width - window_width) // 2
+    y = (screen_height - window_height) // 2
 
-app = ChatApp(root)
-root.mainloop()
+    # Thiết lập vị trí cửa sổ
+    root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+    root.mainloop()
