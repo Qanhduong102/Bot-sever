@@ -5,7 +5,7 @@ import requests
 from flask import Flask
 from flask_socketio import SocketIO, send
 from geopy.geocoders import Nominatim
-import webbrowser
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
 socketio = SocketIO(app)
