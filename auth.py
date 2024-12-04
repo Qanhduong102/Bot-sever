@@ -3,7 +3,11 @@ from tkinter import messagebox, scrolledtext
 import sqlite3
 import hashlib
 import subprocess
-
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import random
+import string
 DATABASE_NAME = "users.db"  # Tên cơ sở dữ liệu SQLite
 
 class ChatApp:
@@ -197,6 +201,63 @@ class ChatApp:
             messagebox.showerror("Lỗi", "Email đã tồn tại!")
         finally:
             conn.close()
+    def forgot_password(self):
+        email = self.email_entry.get()
+
+        if not email:
+            messagebox.showerror("Lỗi", "Vui lòng nhập email để lấy lại mật khẩu!")
+            return
+
+        # Tạo mật khẩu tạm thời
+        temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+        # Băm mật khẩu tạm thời
+        hashed_password = self.hash_password(temp_password)
+
+        # Cập nhật lại mật khẩu trong cơ sở dữ liệu
+        conn = sqlite3.connect(DATABASE_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            cursor.execute("UPDATE users SET password = ? WHERE email = ?", (hashed_password, email))
+            conn.commit()
+            conn.close()
+
+            # Gửi email với mật khẩu mới
+            self.send_reset_email(email, temp_password)
+
+            messagebox.showinfo("Thành công", "Mật khẩu mới đã được gửi đến email của bạn!")
+        else:
+            conn.close()
+            messagebox.showerror("Lỗi", "Email không tồn tại trong hệ thống!")
+
+    def send_reset_email(self, recipient_email, temp_password):
+        sender_email = "autochatbot40@gmail.com"
+        sender_password = "zlji ftme fhcc zlzg"  # Bạn cần đăng ký tài khoản email và cấp quyền gửi email
+
+        subject = "Mật khẩu mới của bạn"
+        body = f"Chào bạn,\n\nMật khẩu mới của bạn là: {temp_password}\n\nVui lòng thay đổi mật khẩu sau khi đăng nhập!"
+
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+        msg['Subject'] = subject
+
+        msg.attach(MIMEText(body, 'plain'))
+
+        try:
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                server.starttls()
+                server.login(sender_email, sender_password)
+                text = msg.as_string()
+                server.sendmail(sender_email, recipient_email, text)
+            print("Email sent successfully")
+        except Exception as e:
+            print(f"Error sending email: {e}")
+            messagebox.showerror("Lỗi", "Không thể gửi email! Vui lòng thử lại sau.")
 
     def create_chat_frame(self):
         if self.login_frame:
