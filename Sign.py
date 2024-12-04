@@ -57,7 +57,7 @@ root.geometry("800x600")
 root.resizable(False, False)
 
 # Thêm hình nền
-bg_image = PhotoImage(file="background.jpg")  # Thay bằng đường dẫn file hình nền
+bg_image = PhotoImage(file="background.png")  # Thay bằng đường dẫn file hình nền
 bg_label = tk.Label(root, image=bg_image)
 bg_label.place(relwidth=1, relheight=1)
 
