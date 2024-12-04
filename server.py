@@ -5,36 +5,12 @@ import requests
 from flask import Flask
 from flask_socketio import SocketIO, send
 from geopy.geocoders import Nominatim
-from serpapi import GoogleSearch
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
 socketio = SocketIO(app)
 
-# Thêm dòng này để định nghĩa serp_api_key
-serp_api_key = "Yb6c0374ee5d29803ecfe95c2dfc11c88b922dd81ae0afb93de40f87d7c08795e"
-
-# Thay đổi hàm tìm kiếm Google
-def search_google(query):
-    client = GoogleSearch({"api_key": serp_api_key})  # Đảm bảo chỉ truyền 1 tham số duy nhất
-    params = {
-        "q": query,
-        "location": "Vietnam",
-    }
-    try:
-        # Truyền params vào hàm get_dict() mà không cần thêm đối số khác
-        results = client.get_dict(params)
-        if "organic_results" in results:
-            results_list = results["organic_results"]
-            if results_list:
-                return "\n".join([f"{i+1}. {result['title']}: {result['link']}" for i, result in enumerate(results_list[:3])])
-            else:
-                return "No relevant search results found."
-        else:
-            return "Error fetching search results."
-    except Exception as e:
-        return f"Error: {e}"
-    
+   
 # Hàm lấy ngày hôm nay
 def get_date():
     today = datetime.date.today()
@@ -153,15 +129,7 @@ def home():
 @socketio.on('message')
 def handle_message(msg):
     print(f"Message from client: {msg}")
-    # Kiểm tra yêu cầu tìm kiếm thông tin
-    if "search" in msg.lower():
-        query = msg.lower().replace("search", "").strip()  # Loại bỏ từ "search" trong câu
-        if query:
-            response = search_google(query)
-        else:
-            response = "Please provide a search query."
-    # Kiểm tra câu hỏi "What is space?"
-    elif "what is space" in msg.lower():
+    if "what is space" in msg.lower():
         response = "Space is the vast, seemingly infinite expanse that exists beyond the Earth and its atmosphere. It is where all the stars, planets, and galaxies exist."
     elif "what's the time" in msg.lower() or "current time" in msg.lower():
         response = get_time()
