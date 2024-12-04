@@ -109,7 +109,7 @@ def trivia_quiz(msg):
 # Search for information on Wikipedia
 def search_wikipedia(msg):
     try:
-        query = msg.lower().replace("search", "").strip()
+        query = msg.lower().replace("wikipedia", "").strip()
         summary = wikipedia.summary(query, sentences=2)
         return f"Information about {query}: {summary}"
     except wikipedia.exceptions.DisambiguationError as e:
