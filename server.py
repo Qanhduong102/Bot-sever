@@ -69,10 +69,6 @@ def ask_about_hobbies():
 def tell_features():
     return "I can tell you the time, weather, news, and even find out your location. I can also chat with you about various topics!"
 
-import random
-
-import random
-
 # Lưu trữ câu hỏi và câu trả lời của mỗi joke
 jokes = [
     {
