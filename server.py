@@ -5,6 +5,13 @@ import requests
 from flask import Flask
 from flask_socketio import SocketIO, send
 from geopy.geocoders import Nominatim
+from google_search_results import GoogleSearchResults
+
+# Khởi tạo Nominatim geolocator
+geolocator = Nominatim(user_agent="geoapiExercises")
+
+# Khởi tạo SerpApi với API Key của bạn
+serp_api_key = 'b6c0374ee5d29803ecfe95c2dfc11c88b922dd81ae0afb93de40f87d7c08795e'  # Đặt key của bạn ở đây
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
@@ -13,6 +20,26 @@ socketio = SocketIO(app)
 # Khởi tạo Nominatim geolocator
 geolocator = Nominatim(user_agent="geoapiExercises")
 
+# Hàm tìm kiếm thông tin trên Google
+def search_google(query):
+    client = GoogleSearchResults(serp_api_key)
+    params = {
+        "q": query,
+        "location": "Vietnam",  # Tùy chọn: thay đổi địa điểm nếu cần
+    }
+    try:
+        results = client.get_dict(params)
+        if "organic_results" in results:
+            results_list = results["organic_results"]
+            if results_list:
+                return "\n".join([f"{i+1}. {result['title']}: {result['link']}" for i, result in enumerate(results_list[:3])])
+            else:
+                return "No relevant search results found."
+        else:
+            return "Error fetching search results."
+    except Exception as e:
+        return f"Error: {e}"
+    
 # Hàm lấy ngày hôm nay
 def get_date():
     today = datetime.date.today()
@@ -131,8 +158,15 @@ def home():
 @socketio.on('message')
 def handle_message(msg):
     print(f"Message from client: {msg}")
+    # Kiểm tra yêu cầu tìm kiếm thông tin
+    if "search" in msg.lower():
+        query = msg.lower().replace("search", "").strip()  # Loại bỏ từ "search" trong câu
+        if query:
+            response = search_google(query)
+        else:
+            response = "Please provide a search query."
     # Kiểm tra yêu cầu của client
-    if "what's the time" in msg.lower() or "current time" in msg.lower():
+    elif "what's the time" in msg.lower() or "current time" in msg.lower():
         response = get_time()
     elif "weather" in msg.lower():
         response = get_weather()
