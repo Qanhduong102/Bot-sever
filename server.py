@@ -160,7 +160,9 @@ def handle_message(msg):
             response = search_google(query)
         else:
             response = "Please provide a search query."
-    # Kiểm tra yêu cầu của client
+    # Kiểm tra câu hỏi "What is space?"
+    elif "what is space" in msg.lower():
+        response = "Space is the vast, seemingly infinite expanse that exists beyond the Earth and its atmosphere. It is where all the stars, planets, and galaxies exist."
     elif "what's the time" in msg.lower() or "current time" in msg.lower():
         response = get_time()
     elif "weather" in msg.lower():
