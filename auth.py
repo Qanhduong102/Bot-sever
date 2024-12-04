@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, scrolledtext
 import sqlite3
 import hashlib
+import subprocess
 
 DATABASE_NAME = "users.db"  # Tên cơ sở dữ liệu SQLite
 
@@ -155,7 +156,11 @@ class ChatApp:
 
         if user:
             messagebox.showinfo("Thành công", "Đăng nhập thành công!")
-            self.create_chat_frame()
+        
+            # Đóng cửa sổ đăng nhập và mở client.py
+            self.root.quit()  # Đóng cửa sổ Tkinter hiện tại
+            subprocess.Popen(["python", "client.py"])  # Chạy client.py
+        
         else:
             messagebox.showerror("Lỗi", "Thông tin đăng nhập không đúng!")
 
