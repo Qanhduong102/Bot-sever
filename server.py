@@ -18,7 +18,7 @@ def search_google(query):
     client = GoogleSearch({"api_key": serp_api_key})
     params = {
         "q": query,
-        "location": "Vietnam",
+        "location": "Potland",
     }
     try:
         results = client.get_dict(params)
