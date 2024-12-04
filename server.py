@@ -5,7 +5,7 @@ import requests
 from flask import Flask
 from flask_socketio import SocketIO, send
 from geopy.geocoders import Nominatim
-
+import webbrowser
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
 socketio = SocketIO(app)
@@ -123,6 +123,24 @@ def get_location():
         return f"Your location is {city}, {country}."
     except requests.exceptions.RequestException as e:
         return f"Error fetching location: {e}"
+# Mở YouTube
+def open_youtube():
+    url = "https://www.youtube.com"
+    webbrowser.open(url)
+    return "Opening YouTube..."
+
+# Mở Facebook
+def open_facebook():
+    url = "https://www.facebook.com"
+    webbrowser.open(url)
+    return "Opening Facebook..."
+
+# Tìm kiếm thông tin trên Google
+def search_google(query):
+    base_url = "https://www.google.com/search?q="
+    search_url = base_url + '+'.join(query.split())
+    webbrowser.open(search_url)
+    return f"Searching Google for '{query}'..."
 
 @app.route("/", methods=["GET"])
 def home():
@@ -158,7 +176,17 @@ def handle_message(msg):
     elif "what can you do" in msg.lower():
         response = tell_features()
     elif "location" in msg.lower():
-        response = get_location()  # Gọi hàm lấy vị trí người dùng
+        response = get_location()
+    elif "open youtube" in msg.lower():
+        response = open_youtube()
+    elif "open facebook" in msg.lower():
+        response = open_facebook()
+    elif "search google" in msg.lower():
+        query = msg.lower().replace("search google", "").strip()
+        if query:
+            response = search_google(query)
+        else:
+            response = "Please provide something to search on Google."
     else:
         response = f"{msg}"
 
