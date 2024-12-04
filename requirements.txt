@@ -1,6 +1,8 @@
 flask
 flask-socketio
-eventlet
-requests
 geopy
-google-search-results
+googletrans==4.0.0-rc1
+wikipedia
+textblob
+sympy
+requests
