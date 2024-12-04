@@ -29,16 +29,9 @@ def get_specific_day_time(date_str):
     except ValueError:
         return "Invalid date format. Please use YYYY-MM-DD."
 
-# Dự báo thời tiết giả lập
-def get_weather():
-    weather_conditions = ['sunny', 'cloudy', 'rainy', 'snowy', 'windy']
-    temperature = random.randint(15, 35)
-    condition = random.choice(weather_conditions)
-    return f"The weather is {condition} and {temperature} degrees Celsius."
-
 # Thay đổi hàm get_weather để sử dụng OpenWeather API
 def get_weather():
-    api_key = "15ef715fafd3ae523b0017f29bac4687"  # Thay bằng API Key của bạn
+    api_key = "YOUR_API_KEY"  # Thay bằng API Key của bạn
     city = "Hanoi"  # Bạn có thể thay đổi thành tên thành phố bạn muốn lấy thông tin thời tiết
 
     # Tạo URL yêu cầu thời tiết
@@ -67,6 +60,23 @@ def get_weather():
 
     except requests.exceptions.RequestException as e:
         return f"Error fetching weather data: {e}"
+
+# Lấy tin tức
+def get_news():
+    url = 'https://newsapi.org/v2/top-headlines?country=us&apiKey=aa322ef7db774b6da2eb37acc2827518'
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # Tăng cường việc kiểm tra trạng thái HTTP
+        news_data = response.json()
+        if news_data.get('status') == 'ok':
+            articles = news_data.get('articles', [])
+            if not articles:
+                return "No articles found."
+            return "Here are the top news headlines: " + ", ".join([article['title'] for article in articles[:5]])
+        else:
+            return "I'm unable to fetch the news right now."
+    except requests.exceptions.RequestException as e:
+        return f"Error fetching news: {e}"
 def tell_joke(msg):
     jokes = [
         "Why don’t skeletons fight each other? They don’t have the guts.",
