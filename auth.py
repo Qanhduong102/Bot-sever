@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import PhotoImage
 import requests
-
+from PIL import Image, ImageTk
 SERVER_URL = "https://bot-sever-1-m5e4.onrender.com"  # Địa chỉ WebSocket server
 
 def login():
@@ -57,9 +57,9 @@ root.geometry("800x600")
 root.resizable(False, False)
 
 # Thêm hình nền
-bg_image = PhotoImage(file="background.jpg")  # Thay bằng đường dẫn file hình nền
-bg_label = tk.Label(root, image=bg_image)
-bg_label.place(relwidth=1, relheight=1)
+bg_image = Image.open("background.jpg")  # Đường dẫn file ảnh
+bg_image = bg_image.resize((800, 600), Image.ANTIALIAS)  # Resize ảnh phù hợp với cửa sổ
+bg_image = ImageTk.PhotoImage(bg_image)
 
 # Định dạng chung cho các nút
 button_style = {
