@@ -13,20 +13,20 @@ from textblob import TextBlob
 import sympy as sp
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
+app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with your secret key
 socketio = SocketIO(app)
 
-# Hàm lấy ngày hôm nay
+# Get today's date
 def get_date():
     today = datetime.date.today()
     return f"Today's date is {today.strftime('%Y-%m-%d')}."
 
-# Hàm lấy thời gian chính xác
+# Get the current time
 def get_time():
     now = datetime.datetime.now()
     return f"The current time is {now.strftime('%H:%M:%S')}."
 
-# Hàm lấy thời gian của một ngày cụ thể
+# Get the time for a specific date
 def get_specific_day_time(date_str):
     try:
         specific_day = datetime.datetime.strptime(date_str, "%Y-%m-%d")
@@ -34,19 +34,19 @@ def get_specific_day_time(date_str):
     except ValueError:
         return "Invalid date format. Please use YYYY-MM-DD."
 
-# Dự báo thời tiết giả lập
+# Simulated weather forecast
 def get_weather():
     weather_conditions = ['sunny', 'cloudy', 'rainy', 'snowy', 'windy']
     temperature = random.randint(15, 35)
     condition = random.choice(weather_conditions)
     return f"The weather is {condition} and {temperature} degrees Celsius."
 
-# Lấy tin tức
+# Get the latest news
 def get_news():
     url = 'https://newsapi.org/v2/top-headlines?country=us&apiKey=aa322ef7db774b6da2eb37acc2827518'
     try:
         response = requests.get(url, timeout=10)
-        response.raise_for_status()  # Tăng cường việc kiểm tra trạng thái HTTP
+        response.raise_for_status()  # Enhance HTTP status checking
         news_data = response.json()
         if news_data.get('status') == 'ok':
             articles = news_data.get('articles', [])
@@ -58,7 +58,7 @@ def get_news():
     except requests.exceptions.RequestException as e:
         return f"Error fetching news: {e}"
 
-# Dịch ngôn ngữ
+# Language translation
 def translate_text(msg, target_language="vi"):
     try:
         translator = Translator()
@@ -67,77 +67,77 @@ def translate_text(msg, target_language="vi"):
     except Exception as e:
         return f"Translation error: {e}"
 
-# Nhắc nhở công việc
+# Task reminder
 reminders = []
 
 def set_reminder(reminder_msg, reminder_time):
     reminders.append({"msg": reminder_msg, "time": reminder_time})
 
-# Kiểm tra nhắc nhở mỗi phút trong một luồng riêng
+# Check reminders every minute in a separate thread
 def check_reminders():
     while True:
         current_time = datetime.datetime.now().strftime("%H:%M")
         for reminder in reminders[:]:
             if reminder["time"] == current_time:
-                send(f"Nhắc nhở: {reminder['msg']}")
+                send(f"Reminder: {reminder['msg']}")
                 reminders.remove(reminder)
-        time.sleep(60)  # Kiểm tra mỗi phút
+        time.sleep(60)  # Check every minute
 
-# Khởi tạo một luồng để kiểm tra nhắc nhở
+# Start a thread to check reminders
 Thread(target=check_reminders, daemon=True).start()
 
-# Câu hỏi đố vui
+# Trivia questions
 trivia_questions = [
-    {"question": "Thủ đô của Pháp là gì?", "answer": "Paris"},
-    {"question": "Ai là tác giả của 'Giết Con Chim Nhại'?", "answer": "Harper Lee"},
-    {"question": "Hành tinh lớn nhất trong hệ mặt trời là gì?", "answer": "Jupiter"}
+    {"question": "What is the capital of France?", "answer": "Paris"},
+    {"question": "Who is the author of 'To Kill a Mockingbird'?", "answer": "Harper Lee"},
+    {"question": "What is the largest planet in our solar system?", "answer": "Jupiter"}
 ]
 
 def trivia_quiz(msg):
-    if "đố vui" in msg.lower():
+    if "quiz" in msg.lower():
         trivia = random.choice(trivia_questions)
         return trivia["question"]
-    elif "đáp án" in msg.lower():
-        answer = msg.lower().split("đáp án")[-1].strip()
+    elif "answer" in msg.lower():
+        answer = msg.lower().split("answer")[-1].strip()
         for question in trivia_questions:
             if question["answer"].lower() == answer:
-                return "Đúng rồi! Câu trả lời chính xác."
-        return "Sai rồi, thử lại nhé!"
+                return "Correct! The answer is right."
+        return "Wrong! Try again."
     else:
-        return "Hãy hỏi tôi 'đố vui' để bắt đầu trò chơi."
+        return "Ask me 'quiz' to start the game."
 
-# Tìm kiếm thông tin trên Wikipedia
+# Search for information on Wikipedia
 def search_wikipedia(msg):
     try:
-        query = msg.lower().replace("tìm kiếm", "").strip()
+        query = msg.lower().replace("search", "").strip()
         summary = wikipedia.summary(query, sentences=2)
-        return f"Thông tin về {query}: {summary}"
+        return f"Information about {query}: {summary}"
     except wikipedia.exceptions.DisambiguationError as e:
-        return f"Có quá nhiều kết quả cho '{query}', bạn có thể chọn một trong những lựa chọn này: {e.options}"
+        return f"There are too many results for '{query}', you can choose from the following options: {e.options}"
     except wikipedia.exceptions.HTTPTimeoutError:
-        return "Lỗi khi tìm kiếm, vui lòng thử lại sau."
+        return "Error while searching, please try again later."
     except Exception as e:
-        return f"Lỗi: {e}"
+        return f"Error: {e}"
 
-# Nhận diện cảm xúc trong tin nhắn
+# Detect sentiment in the message
 def detect_sentiment(msg):
     blob = TextBlob(msg)
     sentiment = blob.sentiment.polarity
     if sentiment > 0:
-        return "Có vẻ bạn đang rất vui!"
+        return "It seems like you're very happy!"
     elif sentiment < 0:
-        return "Có vẻ bạn đang không vui, tôi có thể giúp gì cho bạn?"
+        return "It seems like you're not feeling great, can I help?"
     else:
-        return "Cảm xúc của bạn có vẻ ổn định, tôi có thể giúp gì cho bạn?"
+        return "Your mood seems stable, can I assist you?"
 
-# Tính toán
+# Perform calculations
 def calculate(msg):
     try:
-        expression = msg.lower().replace("tính toán", "").strip()
+        expression = msg.lower().replace("calculate", "").strip()
         result = sp.sympify(expression)
-        return f"Kết quả: {result}"
+        return f"Result: {result}"
     except Exception as e:
-        return "Câu hỏi tính toán không hợp lệ, vui lòng thử lại."
+        return "The calculation question is invalid, please try again."
 
 def greet():
     return "Hello! How can I help you today?"
@@ -155,7 +155,7 @@ def ask_about_hobbies():
 def tell_features():
     return "I can tell you the time, weather, news, and even find out your location. I can also chat with you about various topics!"
 
-# Lưu trữ câu hỏi và câu trả lời của mỗi joke
+# Store jokes and their answers
 jokes = [
     {
         "question": "Why don’t skeletons fight each other?",
@@ -172,18 +172,18 @@ jokes = [
 ]
 
 def tell_joke(msg):
-    # Kiểm tra nếu người dùng đã yêu cầu câu chuyện hài
+    # Check if the user has asked for a joke
     if "tell me a joke" in msg.lower():
         joke = random.choice(jokes)
-        return joke["question"]  # Trả về câu hỏi của joke
+        return joke["question"]  # Return the question of the joke
     elif "why" in msg.lower():
-        # Khi người dùng hỏi "why", bot sẽ trả lời
+        # When the user asks "why", bot will answer
         return random.choice(jokes)["answer"]
     else:
         return "Say 'tell me a joke' to hear a joke, and 'why' to hear the answer."
 
 def give_quote(msg):
-    # Thêm điều kiện random để có thể trả lời quote hay không
+    # Add random condition to decide if the bot will give a quote
     if random.choice([True, False]):
         quotes = [
             "The only way to do great work is to love what you do. – Steve Jobs",
