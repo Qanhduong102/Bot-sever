@@ -35,7 +35,6 @@ class ChatClient:
             bd=0, highlightthickness=1, highlightbackground="#4CAF50"
         )
         self.chat_area.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
-        self.conversation_listbox.bind("<<ListboxSelect>>", self.on_conversation_select)
 
         # Tiêu đề
         self.header = tk.Label(
@@ -58,6 +57,9 @@ class ChatClient:
             height=15
         )
         self.conversation_listbox.pack(padx=10, pady=10, fill="y")
+
+        # **Dòng bind phải nằm sau khi self.conversation_listbox được khởi tạo**
+        self.conversation_listbox.bind("<<ListboxSelect>>", self.on_conversation_select)
 
         # Tạo khung chứa các nút
         self.button_frame = tk.Frame(
