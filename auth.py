@@ -1,11 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 import requests
-from PIL import Image, ImageTk
-import pyttsx3
-import speech_recognition as sr
 
 SERVER_URL = "https://bot-sever-1-m5e4.onrender.com"  # Địa chỉ WebSocket server
+
 
 class ChatApp:
     def __init__(self, root):
@@ -29,8 +27,13 @@ class ChatApp:
         self.create_login_frame()
 
     def create_login_frame(self):
+        # Ẩn tất cả các frame hiện tại
+        if self.register_frame:
+            self.register_frame.destroy()
         if self.chat_frame:
-            self.chat_frame.pack_forget()
+            self.chat_frame.destroy()
+
+        # Tạo frame đăng nhập mới
         self.login_frame = tk.Frame(self.root, bg=self.panel_color)
         self.login_frame.pack(expand=True, fill="both")
 
@@ -71,7 +74,13 @@ class ChatApp:
         ).pack()
 
     def create_register_frame(self):
-        self.login_frame.pack_forget()
+        # Ẩn tất cả các frame hiện tại
+        if self.login_frame:
+            self.login_frame.destroy()
+        if self.chat_frame:
+            self.chat_frame.destroy()
+
+        # Tạo frame đăng ký mới
         self.register_frame = tk.Frame(self.root, bg=self.panel_color)
         self.register_frame.pack(expand=True, fill="both")
 
@@ -164,9 +173,10 @@ class ChatApp:
 
     def create_chat_frame(self):
         if self.login_frame:
-            self.login_frame.pack_forget()
+            self.login_frame.destroy()
         if self.register_frame:
-            self.register_frame.pack_forget()
+            self.register_frame.destroy()
+
         self.chat_frame = tk.Frame(self.root, bg=self.bg_color)
         self.chat_frame.pack(expand=True, fill="both")
 
