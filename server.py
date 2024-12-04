@@ -71,6 +71,8 @@ def tell_features():
 
 import random
 
+import random
+
 # Lưu trữ câu hỏi và câu trả lời của mỗi joke
 jokes = [
     {
@@ -87,20 +89,13 @@ jokes = [
     }
 ]
 
-# Biến để lưu câu chuyện hài hiện tại
-current_joke = None
-
 def tell_joke(msg):
-    global current_joke
     # Kiểm tra nếu người dùng yêu cầu câu chuyện hài
     if "tell me a joke" in msg.lower():
-        current_joke = random.choice(jokes)  # Lưu lại câu chuyện hài
-        return current_joke["question"]  # Trả về câu hỏi của joke
-    elif "why" in msg.lower() and current_joke:
-        # Nếu người dùng yêu cầu câu trả lời cho câu hỏi trước đó
-        return current_joke["answer"]  # Trả về câu trả lời của joke
+        joke = random.choice(jokes)  # Chọn ngẫu nhiên một câu chuyện hài
+        return f"{joke['question']} {joke['answer']}"  # Trả về câu hỏi và câu trả lời
     else:
-        return "Say 'tell me a joke' to hear a joke or 'why' to get the punchline."
+        return "Say 'tell me a joke' to hear a joke."
 
 def give_quote(msg):
     # Thêm điều kiện random để có thể trả lời quote hay không
