@@ -36,22 +36,37 @@ def get_weather():
     condition = random.choice(weather_conditions)
     return f"The weather is {condition} and {temperature} degrees Celsius."
 
-# Lấy tin tức
-def get_news():
-    url = 'https://newsapi.org/v2/top-headlines?country=us&apiKey=aa322ef7db774b6da2eb37acc2827518'
+# Thay đổi hàm get_weather để sử dụng OpenWeather API
+def get_weather():
+    api_key = "15ef715fafd3ae523b0017f29bac4687"  # Thay bằng API Key của bạn
+    city = "Hanoi"  # Bạn có thể thay đổi thành tên thành phố bạn muốn lấy thông tin thời tiết
+
+    # Tạo URL yêu cầu thời tiết
+    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    complete_url = f"{base_url}q={city}&appid={api_key}&units=metric&lang=vi"  # units=metric để lấy nhiệt độ theo độ C, lang=vi để hiển thị tiếng Việt
+
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(complete_url, timeout=10)
         response.raise_for_status()  # Tăng cường việc kiểm tra trạng thái HTTP
-        news_data = response.json()
-        if news_data.get('status') == 'ok':
-            articles = news_data.get('articles', [])
-            if not articles:
-                return "No articles found."
-            return "Here are the top news headlines: " + ", ".join([article['title'] for article in articles[:5]])
-        else:
-            return "I'm unable to fetch the news right now."
+        data = response.json()
+
+        if data.get('cod') != 200:  # Kiểm tra lỗi trả về từ API
+            return f"Error fetching weather data: {data.get('message', 'Unknown error')}"
+        
+        # Lấy thông tin thời tiết từ phản hồi
+        main = data['main']
+        weather = data['weather'][0]
+
+        temperature = main['temp']
+        description = weather['description']
+        city_name = data['name']
+        country_name = data['sys']['country']
+
+        # Trả về thông tin thời tiết
+        return f"The current weather in {city_name}, {country_name} is {description} with a temperature of {temperature}°C."
+
     except requests.exceptions.RequestException as e:
-        return f"Error fetching news: {e}"
+        return f"Error fetching weather data: {e}"
 def tell_joke(msg):
     jokes = [
         "Why don’t skeletons fight each other? They don’t have the guts.",
