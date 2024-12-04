@@ -139,7 +139,7 @@ class ChatClient:
 
         # Tải ảnh avatar
         avatar_image = Image.open("avatar.png")  # Đường dẫn đến ảnh avatar
-        avatar_image = avatar_image.resize((50, 50), Image.ANTIALIAS)  # Resize ảnh
+        avatar_image = avatar_image.resize((50, 50), Image.Resampling.LANCZOS)  # Resize ảnh
         self.avatar_photo = ImageTk.PhotoImage(avatar_image)
 
         # Tạo widget Label hiển thị avatar
