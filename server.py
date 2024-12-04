@@ -159,10 +159,6 @@ def handle_message(msg):
         response = tell_features()
     elif "location" in msg.lower():
         response = get_location()
-    elif "open youtube" in msg.lower():
-        response = 'Click <a href="https://www.youtube.com" target="_blank">here</a> to open YouTube.'
-    elif "open facebook" in msg.lower():
-        response = 'Click <a href="https://www.facebook.com" target="_blank">here</a> to open Facebook.'
     else:
         response = f"{msg}"
 
