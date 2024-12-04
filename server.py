@@ -23,6 +23,7 @@ def search_google(query):
     }
     try:
         results = client.get_dict(params)
+        print(results)  # In kết quả trả về để kiểm tra
         if "organic_results" in results:
             results_list = results["organic_results"]
             if results_list:
