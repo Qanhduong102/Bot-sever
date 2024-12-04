@@ -8,7 +8,6 @@ import io
 import time
 import threading
 from PIL import Image, ImageTk
-import webbrowser
 import socketio
 
 # Thiết lập mã hóa UTF-8 cho console
