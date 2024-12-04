@@ -85,17 +85,25 @@ jokes = [
     }
 ]
 
+# Global variable to store the current joke being told
+current_joke = None
+
 def tell_joke(msg):
+    global current_joke
+    
     # Kiểm tra nếu người dùng yêu cầu câu chuyện hài
     if "tell me a joke" in msg.lower():
-        joke = random.choice(jokes)
-        return joke["question"]  # Trả về câu hỏi của joke
-    elif "answer" in msg.lower():
-        # Nếu người dùng yêu cầu câu trả lời, tìm câu trả lời của joke đã hỏi
-        joke = random.choice(jokes)
-        return joke["answer"]  # Trả về câu trả lời của joke
+        # Randomly select a joke and store it globally
+        current_joke = random.choice(jokes)
+        return current_joke["question"]  # Trả về câu hỏi của joke
+    
+    # Kiểm tra nếu người dùng hỏi 'why' để nghe câu trả lời của joke
+    elif "why" in msg.lower() and current_joke:
+        return current_joke["answer"]  # Trả về câu trả lời của joke
+
     else:
-        return "Say 'tell me a joke' to hear a joke or 'answer' to get the punchline."
+        return "Say 'tell me a joke' to hear a joke, and 'why?' to hear the punchline."
+
 def give_quote(msg):
     # Thêm điều kiện random để có thể trả lời quote hay không
     if random.choice([True, False]):
