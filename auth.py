@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
 import string
+import json
 DATABASE_NAME = "users.db"  # Tên cơ sở dữ liệu SQLite
 
 class ChatApp:
@@ -160,6 +161,8 @@ class ChatApp:
 
         if user:
             messagebox.showinfo("Thành công", "Đăng nhập thành công!")
+            with open("current_user.json", "w") as f:
+                json.dump({"email": email}, f)
         
             # Đóng cửa sổ đăng nhập và mở client.py
             self.root.quit()  # Đóng cửa sổ Tkinter hiện tại

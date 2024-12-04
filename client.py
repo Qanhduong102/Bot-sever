@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import scrolledtext
+from tkinter import messagebox
 import socketio
 import pyttsx3
 import speech_recognition as sr
@@ -9,7 +10,9 @@ import time
 import threading
 from PIL import Image, ImageTk
 import socketio
-
+import json
+import os
+import subprocess
 # Thiết lập mã hóa UTF-8 cho console
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -25,7 +28,7 @@ class ChatClient:
         self.root.title("Chatbot Client")
         self.root.geometry("800x600")
         self.root.configure(bg="#1e1e2f")
-        self.center_window(800, 600)
+        self.center_window(950, 600)
         self.conversation_count = 0  # Biến đếm số cuộc hội thoại đã tạo
         self.conversations = []  # Danh sách lưu trữ các cuộc hội thoại
         self.current_conversation = []  # Cuộc hội thoại hiện tại
@@ -46,16 +49,38 @@ class ChatClient:
         # Tạo widget Label hiển thị avatar
         self.avatar_label = tk.Label(
             root, image=self.avatar_photo, bg="#1e1e2f"
-    )
+        )
         self.avatar_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")  # Đặt ở góc trái trên cùng
 
         # Tiêu đề (đẩy sang bên cạnh avatar)
         self.header = tk.Label(
-        root, text="🎨 J.A.R.V.I.S 🎤",
-        font=("Montserrat", 16, "bold"),
-        fg="#ffffff", bg="#1e1e2f"
-    )
+            root, text="🎨 J.A.R.V.I.S 🎤",
+            font=("Montserrat", 16, "bold"),
+            fg="#ffffff", bg="#1e1e2f"
+        )
         self.header.grid(row=0, column=0, columnspan=2, pady=(10, 0), sticky="n")
+
+        # Tạo khung chứa avatar và các nút User Info, Log Out
+        self.top_left_panel = tk.Frame(root, bg="#1e1e2f")
+        self.top_left_panel.grid(row=0, column=0, padx=70, pady=30, sticky="nw")
+
+        # Nút User Info
+        self.user_info_button = tk.Button(
+            self.top_left_panel, text="User Info", command=self.show_user_info,
+            bg="#2196F3", fg="white", font=("Roboto", 10, "bold"),
+            relief="flat", activebackground="#1976D2", activeforeground="white",
+            cursor="hand2"
+        )
+        self.user_info_button.grid(row=1, column=1, padx=10)
+
+        # Nút Log Out
+        self.logout_button = tk.Button(
+            self.top_left_panel, text="Log Out", command=self.logout,
+            bg="#F44336", fg="white", font=("Roboto", 10, "bold"),
+            relief="flat", activebackground="#D32F2F", activeforeground="white",
+            cursor="hand2"
+        )
+        self.logout_button.grid(row=1, column=2, padx=10)
 
         # Khung bên trái cho các nút quản lý hội thoại
         self.left_panel = tk.Frame(
@@ -148,6 +173,34 @@ class ChatClient:
         self.current_conversation = []
 
         self.connect_to_server()
+
+
+    def show_user_info(self):
+        try:
+            # Đọc thông tin người dùng từ file
+            with open("current_user.json", "r") as f:
+                user_data = json.load(f)
+            
+            email = user_data.get("email", "Unknown")
+            # Hiển thị thông tin trong hộp thoại
+            messagebox.showinfo("Thông tin tài khoản", f"Email: {email}")
+        except FileNotFoundError:
+            messagebox.showerror("Lỗi", "Không tìm thấy thông tin người dùng!")
+
+    def logout(self):
+        try:
+            # Xóa file lưu thông tin người dùng
+            os.remove("current_user.json")
+        except FileNotFoundError:
+            pass
+
+        # Hiển thị thông báo đăng xuất thành công
+        messagebox.showinfo("Đăng xuất", "Bạn đã đăng xuất thành công!")
+    
+        # Đóng cửa sổ hiện tại và mở lại auth.py
+        self.root.destroy()  # Đóng giao diện client
+        subprocess.Popen(["python", "auth.py"])  # Mở lại giao diện đăng nhập
+
 
     def center_window(self, width, height):
         screen_width = self.root.winfo_screenwidth()
