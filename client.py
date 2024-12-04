@@ -50,7 +50,7 @@ class ChatClient:
 
         # Tiêu đề (đẩy sang bên cạnh avatar)
         self.header = tk.Label(
-        root, text="🎨 Voice-Chat Bot 🎤",
+        root, text="🎨 J.A.R.V.I.S 🎤",
         font=("Montserrat", 16, "bold"),
         fg="#ffffff", bg="#1e1e2f"
     )
@@ -292,17 +292,17 @@ class ChatClient:
         @sio.event
         def connect():
             print("Kết nối thành công tới server!")
-            self.display_message("Bot: Connected to server.")
+            self.display_message("Jarvis: Connected to server.")
 
         @sio.event
         def disconnect():
             print("Ngắt kết nối từ server!")
-            self.display_message("Bot: Disconnected from server.")
+            self.display_message("Jarvis: Disconnected from server.")
 
         @sio.on('message')
         def on_message(data):
             print(f"Phản hồi từ server: {data}")
-            self.typing_effect(f"Bot: {data}")
+            self.typing_effect(f"Jarvis: {data}")
 
         try:
             sio.connect(SERVER_URL)
@@ -326,7 +326,7 @@ class ChatClient:
         recognizer = sr.Recognizer()
         with sr.Microphone() as source:
             try:
-                self.display_message("🎤 Bot: Listening...")
+                self.display_message("🎤 Jarvis: Listening...")
                 audio = recognizer.listen(source, timeout=5)
                 user_message = recognizer.recognize_google(audio, language="en-US")
                 self.display_message(f"You: {user_message}")
@@ -335,11 +335,11 @@ class ChatClient:
                 except Exception as e:
                     self.display_message(f"Error sending message: {e}")
             except sr.UnknownValueError:
-                self.display_message("🎤 Bot: Couldn't understand. Please try again.")
+                self.display_message("🎤 Jarvis: Couldn't understand. Please try again.")
             except sr.RequestError as e:
-                self.display_message(f"🎤 Bot: Error connecting to service ({e})")
+                self.display_message(f"🎤 Jarvis: Error connecting to service ({e})")
             except Exception as e:
-                self.display_message(f"🎤 Bot: Error ({e})")
+                self.display_message(f"🎤 Jarvis: Error ({e})")
 
     def display_message(self, message):
         self.chat_area.config(state='normal')
@@ -359,8 +359,8 @@ class ChatClient:
             self.chat_area.config(state='disabled')
 
         def speak_text():
-            if self.tts_enabled and message.startswith("Bot:"):
-                bot_response = message[5:]  # Bỏ phần "Bot: " để đọc nội dung
+            if self.tts_enabled and message.startswith("Jarvis:"):
+                bot_response = message[5:]  # Bỏ phần "Jarvis: " để đọc nội dung
                 self.engine.say(bot_response)
                 self.engine.runAndWait()
 
