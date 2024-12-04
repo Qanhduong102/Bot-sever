@@ -58,7 +58,7 @@ root.resizable(False, False)
 
 # Thêm hình nền
 bg_image = Image.open("background.jpg")  # Đường dẫn file ảnh
-bg_image = bg_image.resize((800, 600), Image.ANTIALIAS)  # Resize ảnh phù hợp với cửa sổ
+bg_image = bg_image.resize((800, 600), Image.LANCZOS)
 bg_image = ImageTk.PhotoImage(bg_image)
 
 # Định dạng chung cho các nút
