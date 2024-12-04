@@ -8,7 +8,8 @@ import io
 import time
 import threading
 from PIL import Image, ImageTk
-
+import webbrowser
+import socketio
 
 # Thiết lập mã hóa UTF-8 cho console
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -310,6 +311,26 @@ class ChatClient:
         except Exception as e:
             print(f": {e}")
             self.display_message(f"{e}")
+    # Kết nối tới server
+    sio = socketio.Client()
+
+    @sio.event
+    def connect():
+        print('Connected to the server')
+
+    @sio.event
+    def message(data):
+        print(f"Received message: {data}")
+        if "open youtube" in data.lower():
+            webbrowser.open("https://www.youtube.com", new=2)
+        elif "open facebook" in data.lower():
+            webbrowser.open("https://www.facebook.com", new=2)
+
+    # Kết nối tới server
+    sio.connect('http://127.0.0.1:12345')
+
+    # Gửi yêu cầu tới server
+    sio.send("open youtube")    
 
     def send_message(self):
         self.tts_enabled = False  # Tắt TTS khi gửi tin nhắn qua entry

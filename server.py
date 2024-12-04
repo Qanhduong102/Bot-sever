@@ -159,6 +159,12 @@ def handle_message(msg):
         response = tell_features()
     elif "location" in msg.lower():
         response = get_location()
+    elif "open youtube" in msg.lower():
+        response = "Opening YouTube in your browser."
+        socketio.emit('message', response)  # Gửi tin nhắn đến client
+    elif "open facebook" in msg.lower():
+        response = "Opening Facebook in your browser."
+        socketio.emit('message', response)  # Gửi tin nhắn đến client
     else:
         response = f"{msg}"
 
