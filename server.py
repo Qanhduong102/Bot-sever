@@ -5,11 +5,16 @@ import requests
 from flask import Flask
 from flask_socketio import SocketIO, send
 from geopy.geocoders import Nominatim
+from googletrans import Translator
+import time
+from threading import Thread
+import wikipedia
+from textblob import TextBlob
+import sympy as sp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Thay bằng secret key của bạn
 socketio = SocketIO(app)
-
    
 # Hàm lấy ngày hôm nay
 def get_date():
@@ -52,6 +57,81 @@ def get_news():
             return "I'm unable to fetch the news right now."
     except requests.exceptions.RequestException as e:
         return f"Error fetching news: {e}"
+
+# Dịch ngôn ngữ
+def translate_text(msg, target_language="vi"):
+    translator = Translator()
+    translated = translator.translate(msg, dest=target_language)
+    return translated.text
+
+# Nhắc nhở công việc
+reminders = []
+
+def set_reminder(reminder_msg, reminder_time):
+    reminders.append({"msg": reminder_msg, "time": reminder_time})
+    Thread(target=check_reminders).start()
+
+def check_reminders():
+    while True:
+        current_time = datetime.datetime.now().strftime("%H:%M")
+        for reminder in reminders:
+            if reminder["time"] == current_time:
+                send(f"Nhắc nhở: {reminder['msg']}")
+                reminders.remove(reminder)
+        time.sleep(60)  # Kiểm tra mỗi phút
+
+# Câu hỏi đố vui
+trivia_questions = [
+    {"question": "Thủ đô của Pháp là gì?", "answer": "Paris"},
+    {"question": "Ai là tác giả của 'Giết Con Chim Nhại'?", "answer": "Harper Lee"},
+    {"question": "Hành tinh lớn nhất trong hệ mặt trời là gì?", "answer": "Jupiter"}
+]
+
+def trivia_quiz(msg):
+    if "đố vui" in msg.lower():
+        trivia = random.choice(trivia_questions)
+        return trivia["question"]
+    elif "đáp án" in msg.lower():
+        answer = msg.lower().split("đáp án")[-1].strip()
+        for question in trivia_questions:
+            if question["answer"].lower() == answer:
+                return "Đúng rồi! Câu trả lời chính xác."
+        return "Sai rồi, thử lại nhé!"
+    else:
+        return "Hãy hỏi tôi 'đố vui' để bắt đầu trò chơi."
+
+# Tìm kiếm thông tin trên Wikipedia
+def search_wikipedia(msg):
+    try:
+        query = msg.lower().replace("tìm kiếm", "").strip()
+        summary = wikipedia.summary(query, sentences=2)
+        return f"Thông tin về {query}: {summary}"
+    except wikipedia.exceptions.DisambiguationError as e:
+        return f"Có quá nhiều kết quả cho '{query}', bạn có thể chọn một trong những lựa chọn này: {e.options}"
+    except wikipedia.exceptions.HTTPTimeoutError:
+        return "Lỗi khi tìm kiếm, vui lòng thử lại sau."
+    except Exception as e:
+        return f"Lỗi: {e}"
+
+# Nhận diện cảm xúc trong tin nhắn
+def detect_sentiment(msg):
+    blob = TextBlob(msg)
+    sentiment = blob.sentiment.polarity
+    if sentiment > 0:
+        return "Có vẻ bạn đang rất vui!"
+    elif sentiment < 0:
+        return "Có vẻ bạn đang không vui, tôi có thể giúp gì cho bạn?"
+    else:
+        return "Cảm xúc của bạn có vẻ ổn định, tôi có thể giúp gì cho bạn?"
+
+# Tính toán
+def calculate(msg):
+    try:
+        expression = msg.lower().replace("tính toán", "").strip()
+        result = sp.sympify(expression)
+        return f"Kết quả: {result}"
+    except Exception as e:
+        return "Câu hỏi tính toán không hợp lệ, vui lòng thử lại."
 
 def greet():
     return "Hello! How can I help you today?"
@@ -129,37 +209,82 @@ def home():
 @socketio.on('message')
 def handle_message(msg):
     print(f"Message from client: {msg}")
+    
+    # Kiểm tra các câu hỏi cụ thể
     if "what is space" in msg.lower():
         response = "Space is the vast, seemingly infinite expanse that exists beyond the Earth and its atmosphere. It is where all the stars, planets, and galaxies exist."
+    
+    # Các câu hỏi về thời gian
     elif "what's the time" in msg.lower() or "current time" in msg.lower():
         response = get_time()
+    
+    # Thời tiết
     elif "weather" in msg.lower():
         response = get_weather()
+    
+    # Tin tức
     elif "news" in msg.lower():
         response = get_news()
+    
+    # Ngày hiện tại
     elif "today's date" in msg.lower() or "what's the date" in msg.lower():
         response = get_date()
-    elif "what time is it" in msg.lower():
-        response = get_time()
-    elif "what's the time on" in msg.lower():
-        date_str = msg.lower().split("on")[-1].strip()
-        response = get_specific_day_time(date_str)
-    elif "how are you" in msg.lower():
-        response = ask_about_mood()
+    
+    # Câu hỏi về bot
     elif "who are you" in msg.lower():
         response = about_bot()
-    elif "hobbies" in msg.lower():
-        response = ask_about_hobbies()
-    elif "joke" in msg.lower() or "funny" in msg.lower():
-        response = tell_joke(msg)
-    elif "quote" in msg.lower():
-        response = give_quote(msg)
-    elif "what can you do" in msg.lower():
-        response = tell_features()
+    
+    # Vị trí người dùng
     elif "location" in msg.lower():
         response = get_location()
+    
+    # Dịch ngôn ngữ
+    elif "translate" in msg.lower():
+        response = translate_text(msg)
+    
+    # Nhắc nhở
+    elif "reminder" in msg.lower():
+        response = set_reminder(msg)
+    
+    # Đố vui
+    elif "joke" in msg.lower():
+        response = tell_joke(msg)
+    
+    # Trích dẫn
+    elif "quote" in msg.lower():
+        response = give_quote(msg)
+    
+    # Phân tích cảm xúc
+    elif "mood" in msg.lower():
+        response = detect_sentiment(msg)
+    
+    # Câu hỏi đố vui
+    elif "trivia" in msg.lower():
+        response = trivia_quiz(msg)
+    
+    # Tìm kiếm thông tin trên Wikipedia
+    elif "search" in msg.lower():
+        response = search_wikipedia(msg)
+    
+    # Tính toán
+    elif "calculate" in msg.lower():
+        response = calculate(msg)
+    
+    # Câu hỏi khác hoặc chào
+    elif "hello" in msg.lower() or "hi" in msg.lower():
+        response = greet()
+    
+    # Tạm biệt
+    elif "goodbye" in msg.lower() or "bye" in msg.lower():
+        response = "Goodbye! Have a great day!"
+    
+    # Giới thiệu về các tính năng
+    elif "help" in msg.lower():
+        response = tell_features()
+    
+    # Nếu không nhận diện được lệnh
     else:
-        response = f"{msg}"
+        response = f"Tôi không hiểu câu hỏi. Bạn có thể hỏi tôi về thời gian, thời tiết, tin tức, hoặc nhắc nhở."
 
     send(response)
 
