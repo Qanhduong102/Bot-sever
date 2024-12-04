@@ -69,6 +69,8 @@ def ask_about_hobbies():
 def tell_features():
     return "I can tell you the time, weather, news, and even find out your location. I can also chat with you about various topics!"
 
+import random
+
 # Lưu trữ câu hỏi và câu trả lời của mỗi joke
 jokes = [
     {
@@ -85,24 +87,20 @@ jokes = [
     }
 ]
 
-# Global variable to store the current joke being told
+# Biến để lưu câu chuyện hài hiện tại
 current_joke = None
 
 def tell_joke(msg):
     global current_joke
-    
     # Kiểm tra nếu người dùng yêu cầu câu chuyện hài
     if "tell me a joke" in msg.lower():
-        # Randomly select a joke and store it globally
-        current_joke = random.choice(jokes)
+        current_joke = random.choice(jokes)  # Lưu lại câu chuyện hài
         return current_joke["question"]  # Trả về câu hỏi của joke
-    
-    # Kiểm tra nếu người dùng hỏi 'why' để nghe câu trả lời của joke
     elif "why" in msg.lower() and current_joke:
+        # Nếu người dùng yêu cầu câu trả lời cho câu hỏi trước đó
         return current_joke["answer"]  # Trả về câu trả lời của joke
-
     else:
-        return "Say 'tell me a joke' to hear a joke, and 'why?' to hear the punchline."
+        return "Say 'tell me a joke' to hear a joke or 'why' to get the punchline."
 
 def give_quote(msg):
     # Thêm điều kiện random để có thể trả lời quote hay không
