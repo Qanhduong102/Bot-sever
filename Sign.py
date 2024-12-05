@@ -3,12 +3,12 @@ from tkinter import messagebox, scrolledtext
 import sqlite3
 import hashlib
 import subprocess
-import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
 import string
 import json
+
 DATABASE_NAME = "users.db"  # Tên cơ sở dữ liệu SQLite
 
 class ChatApp:
