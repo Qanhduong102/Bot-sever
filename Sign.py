@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 import random
 import string
 import json
-
+import os
 DATABASE_NAME = "users.db"  # Tên cơ sở dữ liệu SQLite
 
 class ChatApp:
@@ -93,6 +93,17 @@ class ChatApp:
             bg="#6C63FF", fg="white", font=("Arial", 12, "bold"),
             relief="flat", cursor="hand2", width=25, height=2, wraplength=250
         ).pack(pady=(10, 20))
+
+        # Dòng chữ "Quên mật khẩu?" thay vì nút
+        forgot_password_label = tk.Label(
+            self.login_frame, text="Quên mật khẩu?", font=("Arial", 12, "underline"),
+            bg=self.panel_color, fg="#FF6B6B", cursor="hand2"
+        )
+        forgot_password_label.pack(pady=(10, 20))
+
+        # Gắn sự kiện nhấp chuột vào dòng chữ
+        forgot_password_label.bind("<Button-1>", lambda e: self.forgot_password())
+    
 
     def create_register_frame(self):
         if self.login_frame:
